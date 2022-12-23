@@ -149,9 +149,9 @@ public:
             plus_coord(idx);
         }
 
-        reference operator*() const { return *narray->at(coord); }
+        reference operator*()  { return *narray->at(coord); }
 
-        pointer operator->() const { return &**this; }
+        pointer operator->()  { return &**this; }
 
         friend iterator &operator++(iterator &rhs) {
             rhs.m_idx += 1;// * rhs.narray->stride_info.front();
@@ -299,11 +299,11 @@ public:
 
     iterator begin() { return {this, 0}; }
 
-    const_iterator begin() const { return {this, 0}; }
+    const_iterator cbegin() const { return {this, 0}; }
 
     iterator end() { return {this, static_cast<std::size_t>( mem_size)}; }
 
-    const_iterator end() const { return {this, static_cast<std::size_t>( mem_size)}; }
+    const_iterator cend() const { return {this, static_cast<std::size_t>( mem_size)}; }
 
 // матрица 2 на 3 для [ 1] offset = 3
 // матрица 2 на 3 транспонированная для [ 1] offset = 1
