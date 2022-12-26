@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 #include "../utils/narray_util.h"
+#include "narray_coord.h"
 
 #ifndef NEURONET_NARRAY_H
 #define NEURONET_NARRAY_H
@@ -138,30 +139,26 @@ public:
         using pointer = T *;
         using iterator_category = std::forward_iterator_tag;
 
-        iterator() : narray(), m_idx(0) {
-            coord = narray->sizes;
-            std::fill(coord.begin(), coord.end(), 0);
+        iterator() :coord({}), narray(), m_idx(0) {
         }
 
-        iterator(narray<T> *b, std::size_t idx) : narray(b), m_idx(idx) {
-            coord = narray->sizes;
-            std::fill(coord.begin(), coord.end(), 0);
-            plus_coord(idx);
+        iterator(narray<T> *b, std::size_t idx) : narray(b),  coord(b->sizes), m_idx(idx) {
+            coord.plus_coord(idx);
         }
 
-        reference operator*()  { return *narray->at(coord); }
+        reference operator*() { return *narray->at(coord.get_coord()); }
 
-        pointer operator->()  { return &**this; }
+        pointer operator->() { return &**this; }
 
         friend iterator &operator++(iterator &rhs) {
-            rhs.m_idx += 1;// * rhs.narray->stride_info.front();
+            rhs.m_idx += 1;
             rhs.inc_coord();
             return rhs;
         }
 
         iterator &operator+=(const int &rhs) {
             this->m_idx += rhs;// * this->narray->stride_info.front();
-            this->plus_coord(rhs);// * this->narray->stride_info.front());
+            coord.plus_coord(rhs);// * this->narray->stride_info.front());
             return *this;
         }
 
@@ -181,27 +178,10 @@ public:
     private:
         narray<T> *narray;
         std::size_t m_idx;
-        std::vector<int> coord;
+        narray_coord coord;
     private:
         void inc_coord() {
-            plus_coord(1);// * this->narray->stride_info.front());
-        }
-
-
-        void plus_coord(int val) {
-            int shift = val;
-            int idx = coord.size() - 1;
-            std::vector<int> ref_sizes = narray->sizes;
-            std::for_each(coord.rbegin(), coord.rend(),
-                          [this, &idx, &shift, &ref_sizes](int i) mutable {
-                              coord[idx] += shift;
-                              shift = 0;
-                              while (coord[idx] >= ref_sizes[idx]) {
-                                  shift++;
-                                  coord[idx] = -ref_sizes[idx];
-                              }
-                              idx--;
-                          });
+            coord.plus_coord(1);// * this->narray->stride_info.front());
         }
     };
 
@@ -214,32 +194,28 @@ public:
         using iterator_category = std::forward_iterator_tag;
 
 
-        const_iterator() : narray(), m_idx(0) {
-            coord = narray->sizes;
-            std::fill(coord.begin(), coord.end(), 0);
+        const_iterator() :coord({}), narray(), m_idx(0) {
         }
 
-        const_iterator(const narray<T> *b, std::size_t idx) : narray(b), m_idx(idx) {
-            coord = narray->sizes;
-            std::fill(coord.begin(), coord.end(), 0);
-            plus_coord(idx);
+        const_iterator(const narray<T> *b, std::size_t idx) : narray(b), coord(b->sizes), m_idx(idx) {
+            coord.plus_coord(idx);
         }
 
         reference operator*() {
-            return *narray->at(coord);
+            return *narray->at(coord.get_coord());
         }
 
         pointer operator->() { return &**this; }
 
         friend const_iterator &operator++(const_iterator &rhs) {
-            rhs.m_idx += 1;// * rhs.narray->stride_info.front();
+            rhs.m_idx += 1;
             rhs.inc_coord();
             return rhs;
         }
 
         const_iterator &operator+=(const int &rhs) {
-            this->m_idx += rhs;// * this->narray->stride_info.front();
-            this->plus_coord(rhs);// * this->narray->stride_info.front());
+            this->m_idx += rhs;
+            coord.plus_coord(rhs);
             return *this;
         }
 
@@ -256,44 +232,12 @@ public:
 
     private:
         const narray<T> *narray;
-        std::vector<int> coord;
+        narray_coord coord;
         std::size_t m_idx;
 
     private:
         void inc_coord() {
-            plus_coord(1);// * this->narray->stride_info.front());
-        }
-
-        // coord {0, 2} + 5
-        // shift = 5
-        // coord {0, 7}, 7 >= 3 shift = 0
-        // 7 - 3 = 4 shift 1
-        // 4- 3 = 1 shift 2
-        // coord {0, 1} shift 2
-        // coord {2, 1} shift 0
-
-
-        // coord {0, 2} + 1
-        // shift = 1
-        // coord {0, 3} 3 >= 3, shift 0
-        // 3 -3 = 0 shift 1
-        // coord {0, 0} shift 1
-        // coord {1, 0} shift 0
-
-        void plus_coord(int val) {
-            int shift = val;
-            int idx = coord.size() - 1;
-            std::vector<int> ref_sizes = narray->sizes;
-            std::for_each(coord.rbegin(), coord.rend(),
-                          [this, &idx, &shift, &ref_sizes](int i) mutable {
-                              coord[idx] += shift;
-                              shift = 0;
-                              while (coord[idx] >= ref_sizes[idx]) {
-                                  shift++;
-                                  coord[idx] = -ref_sizes[idx];
-                              }
-                              idx--;
-                          });
+            coord.plus_coord(1);// * this->narray->stride_info.front());
         }
     };
 
@@ -374,7 +318,6 @@ public:
         *mem += rhs;
         return *this;
     }
-
 
 
     friend narray<T> operator+(narray<T> lhs, narray<T> const &rhs) {

@@ -156,10 +156,12 @@ narray<T> &narray<T>::transpose(int axis1, int axis2) {
 template<typename T>
 T *narray<T>::at(std::vector<int> coord) const {
     int pos = 0;
-    std::reverse(coord.begin(), coord.end());
-    for (int i = 0; i < coord.size(); i++) {
-        pos += coord[i] * stride_info[i];
-    }
+    int idx = 0;
+    std::for_each(coord.rbegin(), coord.rend(), [&pos, &idx, this](int i) mutable {
+        pos += i * stride_info[idx];
+        idx++;
+    });
+
     return mem + pos;
 }
 

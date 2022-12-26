@@ -14,7 +14,7 @@
 
 template<typename T>
 T sigmoid(T z) {
-    return 1.f / (1.f + exp(-z));
+    return  1.f / (1.f + exp(-z));
 }
 
 template<typename T, typename Iterator>

@@ -61,7 +61,7 @@ target_link_libraries(${PROJECT_NAME} spdlog::spdlog_header_only ${ZLIB_LIBRARIE
 
 #add_executable(test_exec test/main_test.cpp narray/narray.cpp)
 # example library
-add_library(narray utils/narray_util.cpp narray/narray.cpp)
+add_library(narray  utils/narray_util.cpp narray/narray_coord.cpp narray/narray.cpp)
 
 
 # testing binary
