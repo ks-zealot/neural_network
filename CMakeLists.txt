@@ -45,9 +45,9 @@ add_executable(Neuronet
         tools/ArchiveDecompressor.cpp
         dataset_readers/MNISTReader.cpp
         utils/narray_util.cpp
-        neural_network/Perceptron.cpp
+        neural_network/Network.cpp
         narray/narray.cpp
-        narray/narray.cpp
+        narray/narray_coord.cpp
         #  destinations/DummyDestintion.cpp
         #  destinations/ImageDestination.cpp
         #  pipes/Pipe.cpp
@@ -174,4 +174,17 @@ enable_testing()
 add_test(
         NAME narray_transform_test
         COMMAND $<TARGET_FILE:narray_transform_test>
+)
+
+
+add_executable(char_sigmoid_test math/math.h  test/char_sigmoid_test.cpp )
+target_link_libraries(char_sigmoid_test PRIVATE narray)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME char_sigmoid_test
+        COMMAND $<TARGET_FILE:char_sigmoid_test>
 )

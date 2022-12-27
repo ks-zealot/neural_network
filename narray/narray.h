@@ -119,7 +119,7 @@ public:
            memory_policy<T> *policy = new standart_policy<T>(),
            std::allocator<T> alloc = std::allocator<T>());
 
-    explicit narray(std::vector<int> sizes, filler<T> &f = zero_filler<T>::GetInstance());
+    narray(std::vector<int> sizes, filler<T> &f = zero_filler<T>::GetInstance());
 
     virtual ~narray();
 //   narray((5, 4))
@@ -139,10 +139,10 @@ public:
         using pointer = T *;
         using iterator_category = std::forward_iterator_tag;
 
-        iterator() :coord({}), narray(), m_idx(0) {
+        iterator() : coord({}), narray(), m_idx(0) {
         }
 
-        iterator(narray<T> *b, std::size_t idx) : narray(b),  coord(b->sizes), m_idx(idx) {
+        iterator(narray<T> *b, std::size_t idx) : narray(b), coord(b->sizes), m_idx(idx) {
             coord.plus_coord(idx);
         }
 
@@ -194,7 +194,7 @@ public:
         using iterator_category = std::forward_iterator_tag;
 
 
-        const_iterator() :coord({}), narray(), m_idx(0) {
+        const_iterator() : coord({}), narray(), m_idx(0) {
         }
 
         const_iterator(const narray<T> *b, std::size_t idx) : narray(b), coord(b->sizes), m_idx(idx) {
@@ -293,12 +293,14 @@ public:
     }
 
 
-    narray<T> &operator=(narray<T> const &&rhs) {
+    narray<T> &operator=(narray<T> &&rhs) {
         sizes = rhs.sizes;
         mem_size = rhs.mem_size;
         allocator = rhs.allocator;
         mem = rhs.mem;
         stride_info = rhs.stride_info;
+        rhs.mem = nullptr;
+        rhs.mem_policy = new subnarray_policy<T>();
         return *this;
     }
 
@@ -308,15 +310,35 @@ public:
         }
         for (int i = 0; i < mem_size; i++) {
             T t = *(mem + i) + *(rhs.mem + i);
-            T *ptr = mem + i;
-            ptr = &t;
+            *(mem + i) = t;
         }
         return *this;
     }
 
     narray<T> &operator+=(T const &rhs) {
-        *mem += rhs;
+        for (int i = 0; i < mem_size; i++) {
+            T t = *(mem + i) + rhs;
+            *(mem + i) = t;
+        }
         return *this;
+    }
+
+    narray<T> &operator*=(T const &rhs) {
+        for (int i = 0; i < mem_size; i++) {
+            T t = *(mem + i) * rhs;
+            *(mem + i) = t;
+        }
+        return *this;
+    }
+
+    friend narray<T> &operator*(narray<T>& lhs, T const &rhs) {
+        lhs *= rhs;
+        return lhs;
+    }
+
+    friend narray<T> &operator+(narray<T>& lhs, T const &rhs) {
+        lhs += rhs;
+        return lhs;
     }
 
 
@@ -330,9 +352,8 @@ public:
             throw_matrix_noneq_error(sizes, rhs.sizes);
         }
         for (int i = 0; i < mem_size; i++) {
-            T t = *(mem + i) - *(rhs.mem + i);
-            T *ptr = mem + i;
-            ptr = &t;
+            T t = *(mem + i) + *(rhs.mem + i);
+            *(mem + i) = t;
         }
         return *this;
     }
@@ -348,13 +369,12 @@ public:
         }
         for (int i = 0; i < mem_size; i++) {
             T t = *(mem + i) * *(rhs.mem + i);
-            T *ptr = mem + i;
-            ptr = &t;
+            *(mem + i) = t;
         }
         return *this;
     }
 
-    friend narray<T> operator*(narray<T> lhs, narray<T> const &rhs) {
+    friend narray<T>& operator*(narray<T> lhs, narray<T> const &rhs) {
         lhs *= rhs;
         return lhs;
     }

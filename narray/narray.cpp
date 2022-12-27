@@ -20,6 +20,8 @@ narray<T>::narray(narray<T> &&rhs) noexcept {
     mem = rhs.mem;
     mem_policy = rhs.mem_policy;
     stride_info = rhs.stride_info;
+    rhs.mem = nullptr;
+    rhs.mem_policy = new subnarray_policy<T>();
 //    memcpy(mem, rhs.mem, sizeof(T) * rhs.mem_size);
 }
 
@@ -137,7 +139,6 @@ narray<T> narray<T>::dot_product(narray<T> other) {
         }
     }
     return res;
-
 }
 
 template<typename T>

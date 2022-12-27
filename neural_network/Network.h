@@ -9,41 +9,45 @@
 #include <vector>
 #include <random>
 #include "dataset_readers/MNISTReader.h"
+#include "narray/narray.h"
+template<class Iterator, typename  T> class view {
+    Iterator b, e;
+public:
+    view(Iterator b, Iterator e): b(b), e(e) {}
 
-template<class T>
-using vector_2d = typename std::vector<std::vector<T>>;
+    T &operator[](std::size_t i) { return *(b[i]); }
+    T const &operator[](std::size_t i) const { return *(b[i]); }
+    Iterator begin() const { return b; }
+    Iterator end() const { return e; }
+    std::size_t size() const { return e - b; }
+};
 
 class Network {
 public:
-    Network(const std::vector<int> sizes, MNISTReader *mnist_reader) : sizes(sizes), mnist_reader(mnist_reader) {}
+    Network(const std::vector<int> sizes, MNISTReader &mnist_reader) : sizes(sizes), mnist_reader(mnist_reader) {}
 
 private:
     const std::vector<int> sizes;
     int num_layer;
-    vector_2d<float> biases;
-    vector_2d<float> weights;
-    MNISTReader *mnist_reader;
+    std::vector<narray<float>> biases;
+    std::vector<narray<float>> weights;
+    MNISTReader &mnist_reader;
 public:
     void init();
 
     void print();
 
 private:
-    void init_biases(std::default_random_engine &generator, std::normal_distribution<float> &distribution);
+    narray<float> &feed_forward(narray<float> &a);
 
-    void init_weights(std::default_random_engine &generator, std::normal_distribution<float> &distribution,
-                      int x,
-                      int y);
 
-    void print(std::vector<std::vector<float>> &v);
+    std::tuple<std::vector<narray<float>>, std::vector<narray<float>>>
+    back_propagation(narray<float> &x, narray<float> &y);
 
-    std::vector<float> feed_forward(std::vector<float> a);
+    void update_mini_butch(view<std::vector<std::tuple<narray<float>, narray<float>>>::iterator, std::tuple<narray<float>,
+            narray<float>>> mini_batch, float eta); //todo объявить тип
 
-    void SGD(std::vector<std::tuple<int, int>> training_data, int epochs, int mini_butch_size, float eta);
-
-    void update_mini_batch(std::vector<std::tuple<int, int>> vector1, float eta);
-
-    std::tuple<vector_2d<float>, vector_2d<float>> backprop(DatasetImage *image, int label);
+    void SGD (std::vector<std::tuple<narray<float>, narray<float>>> training_data, int epochs, int mini_butch_size, float eta);
 };
 
 

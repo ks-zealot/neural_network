@@ -26,7 +26,7 @@ void print_image(unsigned int Width, unsigned int Height, unsigned char *data) {
 }
 
 
-void print_weight(unsigned int Width, unsigned int Height, char *weight) {
+void print_weight(unsigned int Width, unsigned int Height, float *weight) {
     unsigned int x = 0;
     unsigned int y = 0;
     start_color();
@@ -34,7 +34,7 @@ void print_weight(unsigned int Width, unsigned int Height, char *weight) {
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
     for (unsigned int j = 0; j < Height; j++) {
         for (unsigned int i = 0; i < Width; i++) {
-            unsigned int pos = sigmoid(weight[i + (j * Width)]) / 64;
+            unsigned int pos = weight[i + (j * Width)] / 0.2f;
             print_pixel(pos, x, y);
             x += 4;
         }

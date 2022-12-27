@@ -14,22 +14,45 @@
 
 template<typename T>
 T sigmoid(T z) {
-    return  1.f / (1.f + exp(-z));
+    return 1.f / (1.f + exp(-z));
 }
 
+template<typename T>
+T sigmoid_prime(T z) {
+    return sigmoid(z) * (1 - sigmoid(z));
+}
+
+
 template<typename T, typename Iterator>
-void sigmoid(Iterator& z) {
+void sigmoid(Iterator &z) {
     std::transform(z.cbegin(), z.cend(),
                    z.begin(), // write to the same location
                    [](T t) { return sigmoid(t); });
-}
+}//todo sigmoid должен возвращаьб новое значение
 
 template<typename T, typename Iterator>
-void sigmoid_prime(Iterator& z) {
+void sigmoid_prime(Iterator &z) {
     std::transform(z.cbegin(), z.cend(),
                    z.begin(), // write to the same location
                    [](T t) { return sigmoid_prime<>(t); });
+}//todo sigmoid должен возвращаьб новое значение
+
+void char_to_float_conversion(const std::vector<unsigned char> &z, std::vector<float> &res) {
+    std::for_each(z.cbegin(), z.cend(), [&res](unsigned char t) { res.push_back(((float) t / 255.f)); });
 }
+
+std::vector<float> vectorize(unsigned char z, int max) {
+    std::vector<float> res(max);
+    res[z] = 1.0f;
+    return res;
+}
+
+template<typename Iterator1, typename Iterator2, typename T>
+void vectorize(Iterator1 &__input1, Iterator2 &__input2, int max) {
+    std::for_each(__input1.cbegin(), __input1.cend(),
+                  [&__input2, &max](T t) { __input2.push_back(vectorize(t, max)); });
+}
+
 
 template<typename T>
 std::vector<T> cost_derivative(std::vector<T> output_activations, std::vector<T> y) {
@@ -64,10 +87,10 @@ int max_arg(Container const c) {
     return (int) (std::distance(c.begin(), std::max_element(c.begin(), c.end())));
 }
 
-template<typename T>
-std::vector<T> cost_derivative(std::vector<T> activations, T y) {
-    std::transform(activations.begin(), activations.end(), activations.begin(), [&y](T t) { return t - y; });
-    return activations;
+template<typename n_array>
+n_array &cost_derivative(n_array activations, n_array sgm_prime) {
+    n_array res = activations - sgm_prime;
+    return res;
 }
 
 template<typename T>
