@@ -81,7 +81,7 @@ class narray {
 public:
     narray();
 
-    narray(narray<T> &out);
+    narray(const narray<T> &out);
 
     narray(narray<T> &&rhs) noexcept;
 
@@ -280,16 +280,16 @@ public:
 //        return res;
 //    }
 
-    narray<T> &operator=(narray<T> &rhs) {
-        rhs.sizes = sizes;
-        rhs.mem_size = mem_size;
-        rhs.stride_info = stride_info;
+    narray<T> &operator=(const narray<T> &rhs) {
+        sizes = rhs.sizes;
+        mem_size = rhs.mem_size;
+        stride_info = rhs.stride_info;
         std::allocator<T> alloc;
-        rhs.mem = alloc.allocate(rhs.mem_size);
-        rhs.mem_policy = new standart_policy<T>();
-        rhs.allocator = alloc;
-        memcpy(rhs.mem, mem, sizeof(T) * rhs.mem_size);
-        return rhs;
+        mem = alloc.allocate(rhs.mem_size);
+        mem_policy = new standart_policy<T>();
+        allocator = alloc;
+        memcpy(mem, rhs.mem, sizeof(T) * rhs.mem_size);
+        return *this;
     }
 
 
@@ -399,7 +399,7 @@ private:
 public:
     //Test purpose
 
-    inline std::vector<int> get_sizes() {
+    inline std::vector<int> get_sizes() const {
         return sizes;
     }
 

@@ -188,3 +188,28 @@ add_test(
         NAME char_sigmoid_test
         COMMAND $<TARGET_FILE:char_sigmoid_test>
 )
+
+
+add_executable(copy_constructor_test test/copy_constructor_test.cpp)
+target_link_libraries(copy_constructor_test PRIVATE narray)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME copy_constructor_test
+        COMMAND $<TARGET_FILE:copy_constructor_test>
+)
+
+add_executable(narray_test_dot_product_1 test/narray_test_dot_product_1.cpp)
+target_link_libraries(narray_test_dot_product_1 PRIVATE narray)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_dot_product_1
+        COMMAND $<TARGET_FILE:narray_test_dot_product_1>
+)

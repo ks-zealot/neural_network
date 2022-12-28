@@ -26,8 +26,15 @@ narray<T>::narray(narray<T> &&rhs) noexcept {
 }
 
 template<typename T>
-narray<T>::narray(narray<T> &out) {
-    out = *this;
+narray<T>::narray(const narray<T> &out) {
+    sizes = out.sizes;
+    mem_size = out.mem_size;
+    stride_info = out.stride_info;
+    std::allocator<T> alloc;
+    mem = alloc.allocate(out.mem_size);
+    mem_policy = new standart_policy<T>();
+    allocator = alloc;
+    memcpy(mem, out.mem, sizeof(T) * out.mem_size);
 //    out.mem = out.allocator.allocate(out.mem_size);
 //    out.mem = mem;
 }

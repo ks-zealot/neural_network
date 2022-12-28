@@ -107,3 +107,40 @@ matrix<T> multiple(matrix<T> A, matrix<T> B) {
     }
     return C;
 }
+
+
+template<typename Container, typename T>
+Container  dot_product(const Container& a, const Container& b) {
+    Container transposed = b;
+
+    if (a.get_sizes().size() > 2 || b.get_sizes().size() > 2) {
+        throw new std::runtime_error("Dot product implement only for narray dim < 2");
+    }
+    if (a.get_sizes().front() != b.get_sizes().back()) {
+        throw new std::runtime_error("narrays is not conform");
+    }
+    std::vector<int> new_sizes;
+    new_sizes.push_back(a.get_sizes().front());
+    new_sizes.push_back(b.get_sizes().back());
+    std::allocator<T> _allocator;
+    int new_mem_size = 1;
+    std::for_each(new_sizes.begin(), new_sizes.end(),
+                  [&new_mem_size](int i) mutable {
+                      new_mem_size *= i;
+                  });
+    T *new_mem = _allocator.allocate(new_mem_size);
+    Container res = Container(new_sizes, new_mem);
+    transposed.transpose();
+    Container ref = a;
+    int n = new_sizes.front();
+    for (int i = 0; i < new_sizes.front(); i++) {
+        for (int j = 0; j < new_sizes.back(); j++) {
+            Container row1 = ref[i];
+            Container row2 = transposed[j];
+            for (auto &&[x, y]: _zip(row1, row2)) {
+                res[i][j] += x * y;
+            }
+        }
+    }
+    return res;
+}
