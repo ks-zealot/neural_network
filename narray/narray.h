@@ -342,7 +342,7 @@ public:
     }
 
 
-    friend narray<T> operator+(narray<T> lhs, narray<T> const &rhs) {
+    friend narray<T> operator+(narray<T>& lhs, narray<T> const &rhs) {
         lhs += rhs;
         return lhs;
     }
@@ -358,7 +358,7 @@ public:
         return *this;
     }
 
-    friend narray<T> operator-(narray<T> lhs, narray<T> const &rhs) {
+    friend narray<T> operator-(narray<T>& lhs, narray<T> const &rhs) {
         lhs -= rhs;
         return lhs;
     }
@@ -374,7 +374,7 @@ public:
         return *this;
     }
 
-    friend narray<T>& operator*(narray<T> lhs, narray<T> const &rhs) {
+    friend narray<T>& operator*(narray<T>& lhs, narray<T> const &rhs) {
         lhs *= rhs;
         return lhs;
     }

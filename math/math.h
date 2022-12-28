@@ -23,19 +23,23 @@ T sigmoid_prime(T z) {
 }
 
 
-template<typename T, typename Iterator>
-void sigmoid(Iterator &z) {
+template<typename T, typename Container>
+Container sigmoid(const Container &z) {
+    Container c  = Container(z);
     std::transform(z.cbegin(), z.cend(),
-                   z.begin(), // write to the same location
+                   c.begin(),
                    [](T t) { return sigmoid(t); });
-}//todo sigmoid должен возвращаьб новое значение
+    return c;
+}
 
-template<typename T, typename Iterator>
-void sigmoid_prime(Iterator &z) {
+template<typename T, typename Container>
+Container sigmoid_prime(const Container &z) {
+    Container c  = Container(z);
     std::transform(z.cbegin(), z.cend(),
-                   z.begin(), // write to the same location
-                   [](T t) { return sigmoid_prime<>(t); });
-}//todo sigmoid должен возвращаьб новое значение
+                   c.begin(),
+                   [](T t) { return sigmoid_prime(t); });
+    return c;
+}
 
 void char_to_float_conversion(const std::vector<unsigned char> &z, std::vector<float> &res) {
     std::for_each(z.cbegin(), z.cend(), [&res](unsigned char t) { res.push_back(((float) t / 255.f)); });
@@ -88,27 +92,15 @@ int max_arg(Container const c) {
 }
 
 template<typename n_array>
-n_array &cost_derivative(n_array activations, n_array sgm_prime) {
+n_array cost_derivative( n_array activations,  n_array sgm_prime) {
     n_array res = activations - sgm_prime;
     return res;
 }
 
-template<typename T>
-using matrix = std::vector<std::vector<T>>;
 
-template<typename T>
-matrix<T> multiple(matrix<T> A, matrix<T> B) {
-    matrix<T> C;
-    for (int i = 0; i < A.size();) {
-        for (int j = 0; j < B.size();) {
-            for (int k = 0; k < A.size(); k++)
-                C[i][j] += A[i][k] * B[k][j];
-        }
-    }
-    return C;
-}
-
-
+//If a is an N-D array and b is an M-D array (where M>=2), it is a sum product over the last axis of a and the second-to-last axis of b:
+//
+//dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])
 template<typename Container, typename T>
 Container  dot_product(const Container& a, const Container& b) {
     Container transposed = b;

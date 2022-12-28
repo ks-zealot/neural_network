@@ -47,8 +47,7 @@ narray<float> &Network::feed_forward(narray<float> &a) {
     return a;
 }
 
-std::tuple<std::vector<narray<float>>, std::vector<narray<float>>>
-Network::back_propagation(narray<float> &x, narray<float> &y) {
+training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y) {
     std::vector<narray<float>> nabla_b;
     for (narray<float> &b: biases) {
         nabla_b.push_back(narray<float>(b.get_sizes()));
@@ -66,31 +65,27 @@ Network::back_propagation(narray<float> &x, narray<float> &y) {
         narray<float> dp = w.dot_product(activation);
         narray<float> z = dp + b;
         zs.push_back(std::move(z));
-        sigmoid<float, narray<float>>(z);
-        activation = z;
+        activation =  sigmoid<float, narray<float>>(z);
         activations.push_back(std::move(activation));// тут проследить, чтобы каждый раз была копия
     }
 //    delta = self.cost_derivative(activations[-1], y) * \
 //            sigmoid_prime(zs[-1])
-    narray<float> prime = zs[zs.size() - 1];
-    sigmoid_prime<float, narray<float>>(prime);
-    narray<float> delta = cost_derivative(activations[activations.size() - 1], y) * prime;
+    narray<float> derivative = cost_derivative(activations[activations.size() - 1], y);
+    narray<float> delta = derivative *
+                          sigmoid_prime<float, narray<float>>(zs[zs.size() - 1]);
     nabla_b[nabla_b.size() - 1] = delta;
     nabla_w[nabla_w.size() - 1] = delta.dot_product(activations[activations.size() - 2].transpose());
     for (int l = 2; l != num_layer; l++) {
         narray<float> z = zs[zs.size() - l];
-        narray<float> sp = zs[zs.size() - l];
-        sigmoid_prime<float, narray<float>>(sp);
-        delta = weights[weights.size() - l].transpose().dot_product(delta) * sp;
+        delta = weights[weights.size() - l].transpose().dot_product(delta) *
+                sigmoid_prime<float, narray<float>>(zs[zs.size() - l]);
         nabla_b[-l] = delta;
         nabla_w[-l] = delta.dot_product(activations[-l - 1].transpose());
     }
-    return std::tuple<std::vector<narray<float>>, std::vector<narray<float>>>(nabla_b, nabla_w);//todo объявить тип
+    return training_data_tuple(nabla_b, nabla_w);
 }
 
-void Network::update_mini_butch(
-        view<std::vector<std::tuple<narray<float>, narray<float>>>::iterator, std::tuple<narray<float>,
-                narray<float>>> mini_batch, float eta) {
+void Network::update_mini_butch(mini_batch_view mini_batch, float eta) {
     std::vector<narray<float>> nabla_b;
     for (narray<float> &b: biases) {
         nabla_b.push_back(narray<float>(b.get_sizes()));
@@ -102,7 +97,7 @@ void Network::update_mini_butch(
     for (std::tuple<narray<float>, narray<float>> &tpl: mini_batch) {
         narray<float> &x = std::get<0>(tpl);
         narray<float> &y = std::get<1>(tpl);
-        std::tuple<std::vector<narray<float>>, std::vector<narray<float>>> back_prp_res = back_propagation(x, y);
+        training_data_tuple back_prp_res = back_propagation(x, y);
         std::vector<narray<float>> &delta_nabla_b = std::get<0>(back_prp_res);
         std::vector<narray<float>> &delta_nabla_w = std::get<1>(back_prp_res);
         int idx = 0;
@@ -130,16 +125,13 @@ void Network::update_mini_butch(
 }
 
 void
-Network::SGD(std::vector<std::tuple<narray<float>, narray<float>>> training_data, int epochs, int mini_butch_size,
+Network::SGD(training_data_container training_data, int epochs, int mini_butch_size,
              float eta) {
     for (int epoch = 0; epoch < epochs; epoch++) {
         std::random_shuffle(training_data.begin(), training_data.end());
         for (int k = 0; k < training_data.size() - mini_butch_size; k + mini_butch_size) {
-            view < std::vector<std::tuple<narray < float>, narray < float>>>::iterator, std::tuple<narray < float>,
-                    narray < float>>> mini_butch = view < std::vector<std::tuple<narray < float>,
-                    narray < float>>>::iterator, std::tuple<narray < float>,
-                    narray < float>>>(training_data.begin() + k,
-                    training_data.begin() + k + mini_butch_size); //todo объявить тип
+            mini_batch_view mini_butch = mini_batch_view(training_data.begin() + k,
+                                                         training_data.begin() + k + mini_butch_size);
             update_mini_butch(mini_butch, eta);
 
             //todo обрабатывать тест дата

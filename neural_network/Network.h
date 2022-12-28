@@ -10,6 +10,9 @@
 #include <random>
 #include "dataset_readers/MNISTReader.h"
 #include "narray/narray.h"
+
+
+
 template<class Iterator, typename  T> class view {
     Iterator b, e;
 public:
@@ -21,6 +24,13 @@ public:
     Iterator end() const { return e; }
     std::size_t size() const { return e - b; }
 };
+
+using mini_batch_view = view<std::vector<std::tuple<narray<float>, narray<float>>>::iterator, std::tuple<narray<float>,
+        narray<float>>>;
+
+using training_data_container = std::vector<std::tuple<narray<float>, narray<float>>>;
+
+using training_data_tuple = std::tuple<std::vector<narray<float>>, std::vector<narray<float>>>;
 
 class Network {
 public:
@@ -44,10 +54,9 @@ private:
     std::tuple<std::vector<narray<float>>, std::vector<narray<float>>>
     back_propagation(narray<float> &x, narray<float> &y);
 
-    void update_mini_butch(view<std::vector<std::tuple<narray<float>, narray<float>>>::iterator, std::tuple<narray<float>,
-            narray<float>>> mini_batch, float eta); //todo объявить тип
+    void update_mini_butch(mini_batch_view mini_batch, float eta);
 
-    void SGD (std::vector<std::tuple<narray<float>, narray<float>>> training_data, int epochs, int mini_butch_size, float eta);
+    void SGD (training_data_container training_data, int epochs, int mini_butch_size, float eta);
 };
 
 
