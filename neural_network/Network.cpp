@@ -2,8 +2,6 @@
 // Created by zealot on 08.12.2022.
 //
 
-#include <random>
-#include <iostream>
 #include <chrono>
 #include <thread>
 #include <valarray>
@@ -32,17 +30,16 @@ void Network::print() {
         print_weight(28, 28, weights[0].at({0, 0}));
         std::this_thread::sleep_for(std::chrono::seconds(1));
         weights[0] += narray<float>({28 * 28, 30}, random_filler<float>::GetInstance());
-        sigmoid<float, narray<float>>(weights[0]);
+        weights[0] = sigmoid<float, narray<float>>(weights[0]);
     }
     endwin();
 }
 
-narray<float> &Network::feed_forward(narray<float> &a) {
+narray<float> &Network::feed_forward(narray<float> a) {
 
     for (narray<float> w: weights) {
         narray<float> v = w.dot_product(a) + biases[0];
-        sigmoid<float, narray<float>>(v);
-        a = v;
+        a = sigmoid<float, narray<float>>(v);
     }
     return a;
 }
@@ -62,16 +59,14 @@ training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y
     std::vector<narray<float>> zs;
     for (auto &&[b, w]: _zip(biases, weights)) {
 //        z = np.dot(w, activation)+b
-        narray<float> dp = w.dot_product(activation);
-        narray<float> z = dp + b;
+        narray<float> z = w.dot_product(activation) + b;
         zs.push_back(std::move(z));
-        activation =  sigmoid<float, narray<float>>(z);
+        activation = sigmoid<float, narray<float>>(z);
         activations.push_back(std::move(activation));// тут проследить, чтобы каждый раз была копия
     }
 //    delta = self.cost_derivative(activations[-1], y) * \
 //            sigmoid_prime(zs[-1])
-    narray<float> derivative = cost_derivative(activations[activations.size() - 1], y);
-    narray<float> delta = derivative *
+    narray<float> delta = cost_derivative(activations[activations.size() - 1], y) *
                           sigmoid_prime<float, narray<float>>(zs[zs.size() - 1]);
     nabla_b[nabla_b.size() - 1] = delta;
     nabla_w[nabla_w.size() - 1] = delta.dot_product(activations[activations.size() - 2].transpose());
@@ -125,7 +120,7 @@ void Network::update_mini_butch(mini_batch_view mini_batch, float eta) {
 }
 
 void
-Network::SGD(training_data_container training_data, int epochs, int mini_butch_size,
+Network::SGD(training_data_container &training_data, int epochs, int mini_butch_size,
              float eta) {
     for (int epoch = 0; epoch < epochs; epoch++) {
         std::random_shuffle(training_data.begin(), training_data.end());
@@ -137,4 +132,27 @@ Network::SGD(training_data_container training_data, int epochs, int mini_butch_s
             //todo обрабатывать тест дата
         }
     }
+}
+
+void Network::train(unsigned char *images, unsigned char *labels, unsigned image_size, unsigned int size) {
+    unsigned mini_batch_size = 60;
+    unsigned number_of_epochs = 1000;
+    float eta = 3.f;
+    training_data_container container;
+    for (int i = 0; i < size; i++) {
+        std::vector<float> prepared_img = std::vector<float>(image_size);
+        std::vector<unsigned char> img = std::vector<unsigned char>(image_size);
+        for (int j = 0; j < image_size; j++) {
+            img.push_back(*(images + j + (image_size * i)));
+        }
+        char_to_float_conversion(img, prepared_img);
+        container.push_back(std::make_tuple(narray<float>(prepared_img), narray<float>(vectorize(*(labels + i), 10))));
+        img.clear();
+        prepared_img.clear();
+    }
+    SGD(container, mini_batch_size, number_of_epochs, eta);
+}
+
+int Network::evaluate(narray<float> &image) {
+    return max_arg(feed_forward(image));
 }

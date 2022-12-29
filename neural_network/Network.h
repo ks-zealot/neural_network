@@ -12,16 +12,20 @@
 #include "narray/narray.h"
 
 
-
-template<class Iterator, typename  T> class view {
+template<class Iterator, typename T>
+class view {
     Iterator b, e;
 public:
-    view(Iterator b, Iterator e): b(b), e(e) {}
+    view(Iterator b, Iterator e) : b(b), e(e) {}
 
     T &operator[](std::size_t i) { return *(b[i]); }
+
     T const &operator[](std::size_t i) const { return *(b[i]); }
+
     Iterator begin() const { return b; }
+
     Iterator end() const { return e; }
+
     std::size_t size() const { return e - b; }
 };
 
@@ -47,16 +51,28 @@ public:
 
     void print();
 
+    void train(unsigned char * images,unsigned char * labels, unsigned image_size, unsigned size);
+    //    def evaluate(self, test_data):
+//    """Return the number of test inputs for which the neural
+//    network outputs the correct result. Note that the neural
+//    network's output is assumed to be the index of whichever
+//    neuron in the final layer has the highest activation."""
+//    test_results = [(np.argmax(self.feedforward(x)), y)
+//    for (x, y) in test_data]
+//    return sum(int(x == y) for (x, y) in test_results)
+    int evaluate(   narray<float> & container);
+
 private:
-    narray<float> &feed_forward(narray<float> &a);
+    narray<float> &feed_forward(narray<float> a);
 
-
-    std::tuple<std::vector<narray<float>>, std::vector<narray<float>>>
-    back_propagation(narray<float> &x, narray<float> &y);
+    training_data_tuple back_propagation(narray<float> &x, narray<float> &y);
 
     void update_mini_butch(mini_batch_view mini_batch, float eta);
 
-    void SGD (training_data_container training_data, int epochs, int mini_butch_size, float eta);
+    void SGD(training_data_container& training_data, int epochs, int mini_butch_size, float eta);
+
+
+
 };
 
 

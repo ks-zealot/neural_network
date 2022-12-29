@@ -347,6 +347,11 @@ public:
         return lhs;
     }
 
+    friend narray<T> operator+(narray<T>&& lhs, narray<T> const &rhs) {
+        lhs += rhs;
+        return lhs;
+    }
+
     narray<T> &operator-=(narray<T> const &rhs) {
         if (sizes != rhs.sizes) {
             throw_matrix_noneq_error(sizes, rhs.sizes);
@@ -375,6 +380,11 @@ public:
     }
 
     friend narray<T>& operator*(narray<T>& lhs, narray<T> const &rhs) {
+        lhs *= rhs;
+        return lhs;
+    }
+
+    friend narray<T>& operator*(narray<T>&& lhs, narray<T> const &rhs) {
         lhs *= rhs;
         return lhs;
     }

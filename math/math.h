@@ -85,10 +85,10 @@ std::vector<T> mul(std::vector<T> vector1, std::vector<T> vector2) {
 
 
 template<typename Container>
-int max_arg(Container const c) {
-    if (std::begin(c) == std::end(c))
+int max_arg(const Container&  c) {
+    if (c.cbegin()  == c.cend())
         throw std::invalid_argument("empty container is not allowed.");
-    return (int) (std::distance(c.begin(), std::max_element(c.begin(), c.end())));
+    return (int) (std::distance(c.cbegin(), std::max_element(c.cbegin(), c.cend())));
 }
 
 template<typename n_array>
