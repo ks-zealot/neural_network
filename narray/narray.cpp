@@ -145,7 +145,7 @@ T *narray<T>::at(std::vector<int> coord) const {
 template<typename T>
 typename narray<T>::iterator narray<T>::insert(narray::iterator position, narray::value_type const &val) {
     int idx = std::distance(begin(), position);
-    *(mem + idx) = *val;
+    *(mem + idx) = *(val.mem);
     return position;
 }
 

@@ -133,9 +133,10 @@ Container dot_product(const Container &a, const Container &b) {
 
         std::allocator<T> _allocator;
         T *new_mem = _allocator.allocate(1);
+        *new_mem = T(0);
         Container res = Container(std::vector<int>(), new_mem);
         for (auto &&[x, y]: _zip(a, b)) {
-            res[0] += x * y;
+            res += x * y;
         }
         return res;
     }
@@ -153,11 +154,9 @@ Container dot_product(const Container &a, const Container &b) {
         T *new_mem = _allocator.allocate(new_mem_size);
         Container res = Container(new_sizes, new_mem);
         transposed.transpose();
-        Container ref = a;
-        int n = new_sizes.front();
         for (int i = 0; i < new_sizes.front(); i++) {
             for (int j = 0; j < new_sizes.back(); j++) {
-                Container row1 = ref[i];
+                Container row1 = a[i];
                 Container row2 = transposed[j];
                 for (auto &&[x, y]: _zip(row1, row2)) {
                     res[i][j] += x * y;
@@ -167,7 +166,7 @@ Container dot_product(const Container &a, const Container &b) {
         return res;
     }
     if (a.get_sizes().size() == 2 && b.get_sizes().size() == 1) {
-        std::vector<int> new_sizes = b.get_sizes();
+        std::vector<int> new_sizes = {a.get_sizes().front()};
         std::allocator<T> _allocator;
         int new_mem_size = 1;
         std::for_each(new_sizes.begin(), new_sizes.end(),
@@ -177,12 +176,18 @@ Container dot_product(const Container &a, const Container &b) {
         T *new_mem = _allocator.allocate(new_mem_size);
         Container res = Container(new_sizes, new_mem);
         std::insert_iterator<Container> insert_it(res, res.begin());
-        for (auto &&[x, y]: _zip(a, b)) {
-            insert_it = dot_product<Container, T>(x, y).at({0, 0});
+        for (int i = 0; i < new_sizes.front(); i++) {
+            Container row  = a[i];
+            T t;
+            for (auto &&[x, y]: _zip(row, b)) {
+                t += x * y;
+            }
+            insert_it = t;
         }
+
         return res;
     }
-
+    throw new std::runtime_error("non supported for now");
 }
 
 #endif //NEURONET_MATH_H

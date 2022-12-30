@@ -80,7 +80,7 @@ template<typename T>
 class narray {
 public:
 
-    using value_type = T *;
+    using value_type = narray<T>;
 
 
     narray();
@@ -263,6 +263,9 @@ public:
 //    0.064087 1.15236 -1.00973
 // матрица 3 на 3 транспонированная для [ 1] offset = 1
     narray<T> operator[](std::size_t idx) const {
+        if(sizes.empty()) {
+            return *this;
+        }
         std::vector<int> new_sizes = sizes;
         std::vector<int> new_stride_info = stride_info;
         std::reverse(new_stride_info.begin(), new_stride_info.end());
@@ -312,10 +315,10 @@ public:
     }
 
     narray<T> &operator+=(narray<T> const &rhs) {
-        if (sizes != rhs.sizes) {
+        if ( mem_size < rhs.mem_size) {//todo expand mem mb?
             throw_matrix_noneq_error(sizes, rhs.sizes);
         }
-        for (int i = 0; i < mem_size; i++) {
+        for (int i = 0; i < rhs.mem_size; i++) {
             T t = *(mem + i) + *(rhs.mem + i);
             *(mem + i) = t;
         }

@@ -156,3 +156,4 @@ void Network::train(unsigned char *images, unsigned char *labels, unsigned image
 int Network::evaluate(narray<float> &image) {
     return max_arg(feed_forward(image));
 }
+

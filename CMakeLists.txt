@@ -226,6 +226,31 @@ add_test(
         COMMAND $<TARGET_FILE:narray_test_dot_product_2>
 )
 
+add_executable(narray_test_dot_product_3 math/math.h   test/narray_test_dot_product_3.cpp)
+target_link_libraries(narray_test_dot_product_3 PRIVATE narray)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_dot_product_3
+        COMMAND $<TARGET_FILE:narray_test_dot_product_3>
+)
+
+
+add_executable(narray_test_dot_product_4 math/math.h   test/narray_test_dot_product_4.cpp)
+target_link_libraries(narray_test_dot_product_4 PRIVATE narray)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_dot_product_4
+        COMMAND $<TARGET_FILE:narray_test_dot_product_4>
+)
+
 add_executable(neuronet_test_train global.cpp utils.cpp dataset_readers/MNISTReader.cpp neural_network/Network.cpp test/neuronet_test_train.cpp)
 target_link_libraries(neuronet_test_train PRIVATE narray spdlog::spdlog_header_only ${CURSES_LIBRARIES} )
 
@@ -237,3 +262,4 @@ add_test(
         NAME neuronet_test_train
         COMMAND $<TARGET_FILE:neuronet_test_train>
 )
+

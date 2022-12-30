@@ -39,7 +39,6 @@ using training_data_tuple = std::tuple<std::vector<narray<float>>, std::vector<n
 class Network {
 public:
     Network(const std::vector<int> sizes, MNISTReader &mnist_reader) : sizes(sizes), mnist_reader(mnist_reader) {}
-
 private:
     const std::vector<int> sizes;
     int num_layer;
