@@ -1,5 +1,6 @@
 #include <iostream>
 #include "narray/narray.h"
+#include "math/math.h"
 
 //
 // Created by zealot on 16.12.2022.
@@ -31,7 +32,7 @@ int main(int argc, const char *argv[]) {
     narray<float> obj2 = narray<float>({3, 2}, random_filler<float>::GetInstance());
     print_matrix<float>(obj2);
     std::cout << std::endl;
-    narray<float> dot_product = obj1.dot_product(obj2);
-    print_matrix<float>(dot_product);
+    narray<float> dp = dot_product<narray<float>, float>(obj1, obj2);
+    print_matrix<float>(dp);
     return 0;
 }

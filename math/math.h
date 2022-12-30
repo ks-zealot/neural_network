@@ -10,8 +10,6 @@
 #ifndef NEURONET_MATH_H
 #define NEURONET_MATH_H
 
-#endif //NEURONET_MATH_H
-
 template<typename T>
 T sigmoid(T z) {
     return 1.f / (1.f + exp(-z));
@@ -25,8 +23,8 @@ T sigmoid_prime(T z) {
 
 template<typename T, typename Container>
 Container sigmoid(const Container &z) {
-    Container c  = Container(z);
-    std::transform(z.cbegin(), z.cend(),
+    Container c = Container(z);
+    std::transform(z.begin(), z.end(),
                    c.begin(),
                    [](T t) { return sigmoid(t); });
     return c;
@@ -34,15 +32,19 @@ Container sigmoid(const Container &z) {
 
 template<typename T, typename Container>
 Container sigmoid_prime(const Container &z) {
-    Container c  = Container(z);
-    std::transform(z.cbegin(), z.cend(),
+    Container c = Container(z);
+    std::transform(z.begin(), z.end(),
                    c.begin(),
                    [](T t) { return sigmoid_prime(t); });
     return c;
 }
 
 void char_to_float_conversion(const std::vector<unsigned char> &z, std::vector<float> &res) {
-    std::for_each(z.cbegin(), z.cend(), [&res](unsigned char t) { res.push_back(((float) t / 255.f)); });
+    int idx = 0;
+    std::for_each(z.begin(), z.end(), [&res, &idx](unsigned char t) {
+        res[idx] = ((float) t / 255.f);
+        idx++;
+    });
 }
 
 std::vector<float> vectorize(unsigned char z, int max) {
@@ -53,7 +55,7 @@ std::vector<float> vectorize(unsigned char z, int max) {
 
 template<typename Iterator1, typename Iterator2, typename T>
 void vectorize(Iterator1 &__input1, Iterator2 &__input2, int max) {
-    std::for_each(__input1.cbegin(), __input1.cend(),
+    std::for_each(__input1.begin(), __input1.end(),
                   [&__input2, &max](T t) { __input2.push_back(vectorize(t, max)); });
 }
 
@@ -85,54 +87,102 @@ std::vector<T> mul(std::vector<T> vector1, std::vector<T> vector2) {
 
 
 template<typename Container>
-int max_arg(const Container&  c) {
-    if (c.cbegin()  == c.cend())
+int max_arg(const Container &c) {
+    if (c.cbegin() == c.cend())
         throw std::invalid_argument("empty container is not allowed.");
     return (int) (std::distance(c.cbegin(), std::max_element(c.cbegin(), c.cend())));
 }
 
 template<typename n_array>
-n_array cost_derivative( n_array activations,  n_array sgm_prime) {
+n_array cost_derivative(n_array activations, n_array sgm_prime) {
     n_array res = activations - sgm_prime;
     return res;
 }
 
 
-//If a is an N-D array and b is an M-D array (where M>=2), it is a sum product over the last axis of a and the second-to-last axis of b:
+//dot(a, b, out=None)
+//
+//Dot product of two arrays. Specifically,
+//
+//- If both `a` and `b` are 1-D arrays, it is inner product of vectors
+//(without complex conjugation).
+//
+//- If both `a` and `b` are 2-D arrays, it is matrix multiplication,
+//but using :func:`matmul` or ``a @ b`` is preferred.
+//
+//- If either `a` or `b` is 0-D (scalar), it is equivalent to :func:`multiply`
+//and using ``numpy.multiply(a, b)`` or ``a * b`` is preferred.
+//
+//- If `a` is an N-D array and `b` is a 1-D array, it is a sum product over
+//        the last axis of `a` and `b`.
+//
+//- If `a` is an N-D array and `b` is an M-D array (where ``M>=2``), it is a
+//        sum product over the last axis of `a` and the second-to-last axis of `b`::
 //
 //dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])
-template<typename Container, typename T>
-Container  dot_product(const Container& a, const Container& b) {
-    Container transposed = b;
+//сум продукт это умножение каждого элемента двух векторов и сложение результатот
 
-    if (a.get_sizes().size() > 2 || b.get_sizes().size() > 2) {
-        throw new std::runtime_error("Dot product implement only for narray dim < 2");
+template<typename Container, typename T>
+Container dot_product(const Container &a, const Container &b) {
+    if (a.get_sizes().empty() && b.get_sizes().empty()) {
+        Container res = a;
+        res *= b;
+        return res;
     }
-    if (a.get_sizes().front() != b.get_sizes().back()) {
-        throw new std::runtime_error("narrays is not conform");
+    if (a.get_sizes().size() == 1 && b.get_sizes().size() == 1) {
+
+        std::allocator<T> _allocator;
+        T *new_mem = _allocator.allocate(1);
+        Container res = Container(std::vector<int>(), new_mem);
+        for (auto &&[x, y]: _zip(a, b)) {
+            res[0] += x * y;
+        }
+        return res;
     }
-    std::vector<int> new_sizes;
-    new_sizes.push_back(a.get_sizes().front());
-    new_sizes.push_back(b.get_sizes().back());
-    std::allocator<T> _allocator;
-    int new_mem_size = 1;
-    std::for_each(new_sizes.begin(), new_sizes.end(),
-                  [&new_mem_size](int i) mutable {
-                      new_mem_size *= i;
-                  });
-    T *new_mem = _allocator.allocate(new_mem_size);
-    Container res = Container(new_sizes, new_mem);
-    transposed.transpose();
-    Container ref = a;
-    int n = new_sizes.front();
-    for (int i = 0; i < new_sizes.front(); i++) {
-        for (int j = 0; j < new_sizes.back(); j++) {
-            Container row1 = ref[i];
-            Container row2 = transposed[j];
-            for (auto &&[x, y]: _zip(row1, row2)) {
-                res[i][j] += x * y;
+    if (a.get_sizes().size() == 2 && b.get_sizes().size() == 2) {
+        Container transposed = b;
+        std::vector<int> new_sizes;
+        new_sizes.push_back(a.get_sizes().front());
+        new_sizes.push_back(b.get_sizes().back());
+        std::allocator<T> _allocator;
+        int new_mem_size = 1;
+        std::for_each(new_sizes.begin(), new_sizes.end(),
+                      [&new_mem_size](int i) mutable {
+                          new_mem_size *= i;
+                      });
+        T *new_mem = _allocator.allocate(new_mem_size);
+        Container res = Container(new_sizes, new_mem);
+        transposed.transpose();
+        Container ref = a;
+        int n = new_sizes.front();
+        for (int i = 0; i < new_sizes.front(); i++) {
+            for (int j = 0; j < new_sizes.back(); j++) {
+                Container row1 = ref[i];
+                Container row2 = transposed[j];
+                for (auto &&[x, y]: _zip(row1, row2)) {
+                    res[i][j] += x * y;
+                }
             }
         }
+        return res;
     }
-    return res;
+    if (a.get_sizes().size() == 2 && b.get_sizes().size() == 1) {
+        std::vector<int> new_sizes = b.get_sizes();
+        std::allocator<T> _allocator;
+        int new_mem_size = 1;
+        std::for_each(new_sizes.begin(), new_sizes.end(),
+                      [&new_mem_size](int i) mutable {
+                          new_mem_size *= i;
+                      });
+        T *new_mem = _allocator.allocate(new_mem_size);
+        Container res = Container(new_sizes, new_mem);
+        std::insert_iterator<Container> insert_it(res, res.begin());
+        for (auto &&[x, y]: _zip(a, b)) {
+            insert_it = dot_product<Container, T>(x, y).at({0, 0});
+        }
+        return res;
+    }
+
 }
+
+#endif //NEURONET_MATH_H

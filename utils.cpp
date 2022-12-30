@@ -1,7 +1,5 @@
-#include <iostream>
 #include "utils.h"
 #include "global.h"
-#include "math/math.h"
 
 #define  BLOCK_SIZE 10
 
@@ -34,7 +32,7 @@ void print_weight(unsigned int Width, unsigned int Height, float *weight) {
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
     for (unsigned int j = 0; j < Height; j++) {
         for (unsigned int i = 0; i < Width; i++) {
-            unsigned int pos = weight[i + (j * Width)] / 0.2f;
+            unsigned int pos = weight[i + (j * Width)] * 4.f;
             print_pixel(pos, x, y);
             x += 4;
         }

@@ -126,7 +126,7 @@ add_test(
         COMMAND $<TARGET_FILE:narray_test_bracket_operator>
 )
 
-add_executable(narray_test_dot_product test/narray_test_dot_product.cpp)
+add_executable(narray_test_dot_product math/math.h   test/narray_test_dot_product.cpp)
 target_link_libraries(narray_test_dot_product PRIVATE narray)
 
 # enable testing functionality
@@ -202,7 +202,7 @@ add_test(
         COMMAND $<TARGET_FILE:copy_constructor_test>
 )
 
-add_executable(narray_test_dot_product_1 test/narray_test_dot_product_1.cpp)
+add_executable(narray_test_dot_product_1 math/math.h   test/narray_test_dot_product_1.cpp)
 target_link_libraries(narray_test_dot_product_1 PRIVATE narray)
 
 # enable testing functionality
@@ -212,4 +212,28 @@ enable_testing()
 add_test(
         NAME narray_test_dot_product_1
         COMMAND $<TARGET_FILE:narray_test_dot_product_1>
+)
+
+add_executable(narray_test_dot_product_2 math/math.h   test/narray_test_dot_product_2.cpp)
+target_link_libraries(narray_test_dot_product_2 PRIVATE narray)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_dot_product_2
+        COMMAND $<TARGET_FILE:narray_test_dot_product_2>
+)
+
+add_executable(neuronet_test_train global.cpp utils.cpp dataset_readers/MNISTReader.cpp neural_network/Network.cpp test/neuronet_test_train.cpp)
+target_link_libraries(neuronet_test_train PRIVATE narray spdlog::spdlog_header_only ${CURSES_LIBRARIES} )
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME neuronet_test_train
+        COMMAND $<TARGET_FILE:neuronet_test_train>
 )

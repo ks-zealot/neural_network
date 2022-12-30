@@ -41,6 +41,19 @@ narray<T>::narray(const narray<T> &out) {
 
 
 template<typename T>
+narray<T>::narray(T t, memory_policy<T> *policy ,
+                  std::allocator<T> alloc) {
+    this->mem_policy = policy;
+    this->allocator = alloc;
+    std::vector<int> stride_info;
+    stride_info.push_back(1);
+    mem_size = 1;
+    mem = alloc.allocate(1);
+    *mem = t;
+    this->stride_info = stride_info;
+}
+
+template<typename T>
 narray<T>::narray(std::vector<int> sizes, T *mem, memory_policy<T> *policy, std::allocator<T> alloc) {
     this->mem_policy = policy;
     this->allocator = alloc;
@@ -103,51 +116,6 @@ narray<T>::~narray() {
     delete mem_policy;
 }
 
-//     (4, 5)          (5, 4)         (5, 5)
-//    |1|2|3|4|5|     |1|2|3|4|    |1|2|3|4|5|
-//    |1|2|3|4|5|     |1|2|3|4|    |1|2|3|4|5|
-//    |1|2|3|4|5|   ⋅ |1|2|3|4| =  |1|2|3|4|5|
-//    |1|2|3|4|5|     |1|2|3|4|    |1|2|3|4|5|
-//                    |1|2|3|4|    |1|2|3|4|5|
-
-//берем i-тую строчку и j-тый столбец, перемножаем и суммируем
-//
-template<typename T>
-narray<T> narray<T>::dot_product(narray<T> other) {
-    narray<T> transposed = other;
-
-    if (sizes.size() > 2 || other.sizes.size() > 2) {
-        throw new std::runtime_error("Dot product implement only for narray dim < 2");
-    }
-    if (sizes.front() != other.sizes.back()) {
-        throw new std::runtime_error("narrays is not conform");
-    }
-    std::vector<int> new_sizes;
-    new_sizes.push_back(sizes.front());
-    new_sizes.push_back(other.sizes.back());
-    std::allocator<T> _allocator;
-    int new_mem_size = 1;
-    std::for_each(new_sizes.begin(), new_sizes.end(),
-                  [&new_mem_size](int i) mutable {
-                      new_mem_size *= i;
-                  });
-    T *new_mem = _allocator.allocate(new_mem_size);
-    narray res = narray<T>(new_sizes, new_mem, new standart_policy<T>(), _allocator);
-    transposed.transpose();
-    narray<T> ref = *this;
-    int n = new_sizes.front();
-    for (int i = 0; i < new_sizes.front(); i++) {
-        for (int j = 0; j < new_sizes.back(); j++) {
-            narray<T> row1 = ref[i];
-            narray<T> row2 = transposed[j];
-            for (auto &&[x, y]: _zip(row1, row2)) {
-                res[i][j] += x * y;
-            }
-        }
-    }
-    return res;
-}
-
 template<typename T>
 narray<T> &narray<T>::transpose(int axis1, int axis2) {
     std::iter_swap(sizes.begin() + axis1, sizes.begin() + axis2);
@@ -171,6 +139,14 @@ T *narray<T>::at(std::vector<int> coord) const {
     });
 
     return mem + pos;
+}
+
+
+template<typename T>
+typename narray<T>::iterator narray<T>::insert(narray::iterator position, narray::value_type const &val) {
+    int idx = std::distance(begin(), position);
+    *(mem + idx) = *val;
+    return position;
 }
 
 

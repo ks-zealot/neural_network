@@ -79,7 +79,14 @@ public:
 template<typename T>
 class narray {
 public:
+
+    using value_type = T *;
+
+
     narray();
+
+    narray(T t, memory_policy<T> *policy = new standart_policy<T>(),
+           std::allocator<T> alloc = std::allocator<T>());
 
     narray(const narray<T> &out);
 
@@ -243,11 +250,11 @@ public:
 
     iterator begin() { return {this, 0}; }
 
-    const_iterator cbegin() const { return {this, 0}; }
+    const_iterator begin() const { return {this, 0}; }
 
     iterator end() { return {this, static_cast<std::size_t>( mem_size)}; }
 
-    const_iterator cend() const { return {this, static_cast<std::size_t>( mem_size)}; }
+    const_iterator end() const { return {this, static_cast<std::size_t>( mem_size)}; }
 
 // матрица 2 на 3 для [ 1] offset = 3
 // матрица 2 на 3 транспонированная для [ 1] offset = 1
@@ -323,6 +330,26 @@ public:
         return *this;
     }
 
+    bool operator==(const narray<T> &rhs) {
+        if (get_sizes() != rhs.get_sizes()) {
+            return false;
+        }
+        for (int i = 0; i < mem_size; i++) {
+            if (*(mem + i) != *(rhs.mem + i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool operator==(const T &rhs) {
+        if (!get_sizes().empty()) {
+            return false;
+        }
+        return *(mem) == rhs;
+    }
+
+
     narray<T> &operator*=(T const &rhs) {
         for (int i = 0; i < mem_size; i++) {
             T t = *(mem + i) * rhs;
@@ -331,23 +358,23 @@ public:
         return *this;
     }
 
-    friend narray<T> &operator*(narray<T>& lhs, T const &rhs) {
+    friend narray<T> &operator*(narray<T> &lhs, T const &rhs) {
         lhs *= rhs;
         return lhs;
     }
 
-    friend narray<T> &operator+(narray<T>& lhs, T const &rhs) {
+    friend narray<T> &operator+(narray<T> &lhs, T const &rhs) {
         lhs += rhs;
         return lhs;
     }
 
 
-    friend narray<T> operator+(narray<T>& lhs, narray<T> const &rhs) {
+    friend narray<T> operator+(narray<T> &lhs, narray<T> const &rhs) {
         lhs += rhs;
         return lhs;
     }
 
-    friend narray<T> operator+(narray<T>&& lhs, narray<T> const &rhs) {
+    friend narray<T> operator+(narray<T> &&lhs, narray<T> const &rhs) {
         lhs += rhs;
         return lhs;
     }
@@ -363,7 +390,7 @@ public:
         return *this;
     }
 
-    friend narray<T> operator-(narray<T>& lhs, narray<T> const &rhs) {
+    friend narray<T> operator-(narray<T> &lhs, narray<T> const &rhs) {
         lhs -= rhs;
         return lhs;
     }
@@ -379,18 +406,15 @@ public:
         return *this;
     }
 
-    friend narray<T>& operator*(narray<T>& lhs, narray<T> const &rhs) {
+    friend narray<T> &operator*(narray<T> &lhs, narray<T> const &rhs) {
         lhs *= rhs;
         return lhs;
     }
 
-    friend narray<T>& operator*(narray<T>&& lhs, narray<T> const &rhs) {
+    friend narray<T> &operator*(narray<T> &&lhs, narray<T> const &rhs) {
         lhs *= rhs;
         return lhs;
     }
-
-
-    narray<T> dot_product(narray<T> other);
 
 
     narray<T> &transpose(int axis1 = 0, int axis2 = 1);
@@ -412,6 +436,8 @@ public:
     inline std::vector<int> get_sizes() const {
         return sizes;
     }
+
+    iterator insert (iterator position, const value_type& val)  ;
 
 private:
     template<class B,
@@ -439,6 +465,7 @@ private:
         }
     }
 };
+
 
 
 #endif //NEURONET_NARRAY_H
