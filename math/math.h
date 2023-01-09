@@ -88,9 +88,9 @@ std::vector<T> mul(std::vector<T> vector1, std::vector<T> vector2) {
 
 template<typename Container>
 int max_arg(const Container &c) {
-    if (c.cbegin() == c.cend())
+    if (c.begin() == c.end())
         throw std::invalid_argument("empty container is not allowed.");
-    return (int) (std::distance(c.cbegin(), std::max_element(c.cbegin(), c.cend())));
+    return (int) (std::distance(c.begin(), std::max_element(c.begin(), c.end())));
 }
 
 template<typename n_array>
@@ -166,7 +166,7 @@ Container dot_product(const Container &a, const Container &b) {
         return res;
     }
     if (a.get_sizes().size() == 2 && b.get_sizes().size() == 1) {
-        std::vector<int> new_sizes = {a.get_sizes().front()};
+        std::vector<int> new_sizes = {a.get_sizes().back()};
         std::allocator<T> _allocator;
         int new_mem_size = 1;
         std::for_each(new_sizes.begin(), new_sizes.end(),
@@ -177,12 +177,7 @@ Container dot_product(const Container &a, const Container &b) {
         Container res = Container(new_sizes, new_mem);
         std::insert_iterator<Container> insert_it(res, res.begin());
         for (int i = 0; i < new_sizes.front(); i++) {
-            Container row  = a[i];
-            T t;
-            for (auto &&[x, y]: _zip(row, b)) {
-                t += x * y;
-            }
-            insert_it = t;
+            insert_it = dot_product<Container, T>(a[i], b);
         }
 
         return res;

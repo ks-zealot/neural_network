@@ -35,10 +35,10 @@ void Network::print() {
     endwin();
 }
 
-narray<float> &Network::feed_forward(narray<float> a) {
+narray<float> &Network::feed_forward(narray<float> &a) {
 
     for (narray<float> w: weights) {
-        narray<float> v = w.dot_product(a) + biases[0];
+        narray<float> v = dot_product<narray<float>, float>(w, a) + biases[0];
         a = sigmoid<float, narray<float>>(v);
     }
     return a;
@@ -60,7 +60,7 @@ training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y
     for (auto &&[b, w]: _zip(biases, weights)) {
 //        z = np.dot(w, activation)+b
         narray<float> z = dot_product<narray<float>, float>(w, activation) + b;
-        zs.push_back(std::move(z));
+        zs.push_back(z);
         activation = sigmoid<float, narray<float>>(z);
         activations.push_back(activation);// тут проследить, чтобы каждый раз была копия
     }
@@ -68,14 +68,16 @@ training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y
 //            sigmoid_prime(zs[-1])
     narray<float> delta = cost_derivative(activations[activations.size() - 1], y) *
                           sigmoid_prime<float, narray<float>>(zs[zs.size() - 1]);
-    nabla_b[nabla_b.size() - 1] = delta;
-    nabla_w[nabla_w.size() - 1] = dot_product<narray<float>, float>(delta, activations[activations.size() - 2].transpose());
+    nabla_b.insert(nabla_b.cbegin() + (nabla_b.size()  - 1) , delta);
+    nabla_w.insert(nabla_w.cbegin() + (nabla_w.size()  - 1) , dot_product<narray<float>, float>(delta, activations[activations.size() - 2]));
+    //по ходу тут транспонирование е нужно
     for (int l = 2; l != num_layer; l++) {
-        narray<float> z = zs[zs.size() - l];
-        delta = weights[weights.size() - l].transpose().dot_product(delta) *
-                sigmoid_prime<float, narray<float>>(zs[zs.size() - l]);
-        nabla_b[-l] = delta;
-        nabla_w[-l] = dot_product<narray<float>, float>(delta, activations[-l - 1].transpose());
+        narray<float> z = zs[zs.size() - l + 1];
+        delta = dot_product<narray<float>, float>(weights[weights.size() - l + 1], delta) *
+                sigmoid_prime<float, narray<float>>(zs[zs.size() - l + 1]);
+        nabla_b.insert(nabla_b.cbegin() + (nabla_b.size()  - l + 1) , delta);
+        narray<float> a = activations[activations.size() -l + 1];
+        nabla_w.insert(nabla_w.cbegin() + (nabla_w.size()  - l + 1) , dot_product<narray<float>, float>(delta, activations[activations.size() -l + 1]));
     }
     return training_data_tuple(nabla_b, nabla_w);
 }
@@ -124,7 +126,7 @@ Network::SGD(training_data_container &training_data, int epochs, int mini_butch_
              float eta) {
     for (int epoch = 0; epoch < epochs; epoch++) {
         std::random_shuffle(training_data.begin(), training_data.end());
-        for (int k = 0; k < training_data.size() ; k + mini_butch_size) {
+        for (int k = 0; k < training_data.size(); k += mini_butch_size) {
             mini_batch_view mini_butch = mini_batch_view(training_data.begin() + k,
                                                          training_data.begin() + k + mini_butch_size);
             update_mini_butch(mini_butch, eta);
@@ -154,6 +156,6 @@ void Network::train(unsigned char *images, unsigned char *labels, unsigned image
 }
 
 int Network::evaluate(narray<float> &image) {
-    return max_arg(feed_forward(image));
+    return max_arg<narray<float>>(feed_forward(image));
 }
 

@@ -11,7 +11,7 @@
 #define NEURONET_NARRAY_UTIL_H
 
 void throw_matrix_noneq_error(std::vector<int> sizes, std::vector<int> other_sizes);
-
+//todo эта фигня виснет при narray.size = {0};
 template<typename Iterator>
 void advance_all(Iterator &iterator) {
     ++iterator;

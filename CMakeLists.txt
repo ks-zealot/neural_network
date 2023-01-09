@@ -263,3 +263,13 @@ add_test(
         COMMAND $<TARGET_FILE:neuronet_test_train>
 )
 
+add_executable(narray_test_zip_different_sizes utils/zip_iterator.h utils/zipper.h test/narray_test_zip_different_sizes.cpp )
+target_link_libraries(narray_test_zip_different_sizes PRIVATE narray)
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_zip_different_sizes
+        COMMAND $<TARGET_FILE:narray_test_zip_different_sizes>
+)

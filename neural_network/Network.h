@@ -62,7 +62,7 @@ public:
     int evaluate(   narray<float> & container);
 
 private:
-    narray<float> &feed_forward(narray<float> a);
+    narray<float> &feed_forward(narray<float>& a);
 
     training_data_tuple back_propagation(narray<float> &x, narray<float> &y);
 
