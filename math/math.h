@@ -40,11 +40,7 @@ Container sigmoid_prime(const Container &z) {
 }
 
 void char_to_float_conversion(const std::vector<unsigned char> &z, std::vector<float> &res) {
-    int idx = 0;
-    std::for_each(z.begin(), z.end(), [&res, &idx](unsigned char t) {
-        res[idx] = ((float) t / 255.f);
-        idx++;
-    });
+    std::transform(z.begin(), z.end(), res.begin(), [](unsigned char t) { return ((float) t / 255.f); });
 }
 
 std::vector<float> vectorize(unsigned char z, int max) {

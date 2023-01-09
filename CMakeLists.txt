@@ -150,6 +150,17 @@ add_test(
         COMMAND $<TARGET_FILE:narray_test_fill_predefined_values>
 )
 
+add_executable(narray_test_fill_predefined_values_1 test/narray_test_fill_predefined_values_1.cpp)
+target_link_libraries(narray_test_fill_predefined_values_1 PRIVATE narray)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_fill_predefined_values_1
+        COMMAND $<TARGET_FILE:narray_test_fill_predefined_values_1>
+)
 
 add_executable(narray_zip_test utils/zip_iterator.h utils/zipper.h test/narray_zip_test.cpp )
 target_link_libraries(narray_zip_test PRIVATE narray)
@@ -262,6 +273,19 @@ add_test(
         NAME neuronet_test_train
         COMMAND $<TARGET_FILE:neuronet_test_train>
 )
+
+add_executable(neuronet_test_train_1 global.cpp utils.cpp dataset_readers/MNISTReader.cpp neural_network/Network.cpp test/neuronet_test_train_1.cpp)
+target_link_libraries(neuronet_test_train_1 PRIVATE narray spdlog::spdlog_header_only ${CURSES_LIBRARIES} )
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME neuronet_test_train_1
+        COMMAND $<TARGET_FILE:neuronet_test_train_1>
+)
+
 
 add_executable(narray_test_zip_different_sizes utils/zip_iterator.h utils/zipper.h test/narray_test_zip_different_sizes.cpp )
 target_link_libraries(narray_test_zip_different_sizes PRIVATE narray)

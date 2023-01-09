@@ -38,7 +38,7 @@ using training_data_tuple = std::tuple<std::vector<narray<float>>, std::vector<n
 
 class Network {
 public:
-    Network(const std::vector<int> sizes, MNISTReader &mnist_reader) : sizes(sizes), mnist_reader(mnist_reader) {}
+    Network(const std::vector<int> sizes, MNISTReader &mnist_reader, float eta = 3.f) : sizes(sizes), mnist_reader(mnist_reader), eta(eta) {}
 private:
     const std::vector<int> sizes;
     int num_layer;
@@ -50,7 +50,7 @@ public:
 
     void print();
 
-    void train(unsigned char * images,unsigned char * labels, unsigned image_size, unsigned size);
+    void train(unsigned char * images,unsigned char * labels, unsigned image_size, unsigned size, unsigned epochs, unsigned mini_batch_size);
     //    def evaluate(self, test_data):
 //    """Return the number of test inputs for which the neural
 //    network outputs the correct result. Note that the neural
@@ -68,10 +68,10 @@ private:
 
     void update_mini_butch(mini_batch_view mini_batch, float eta);
 
-    void SGD(training_data_container& training_data, int epochs, int mini_butch_size, float eta);
+    void SGD(training_data_container& training_data, int epochs, int mini_batch_size);
 
 
-
+    float eta = 3.f;
 };
 
 

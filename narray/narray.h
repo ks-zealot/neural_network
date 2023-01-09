@@ -263,7 +263,7 @@ public:
 //    0.064087 1.15236 -1.00973
 // матрица 3 на 3 транспонированная для [ 1] offset = 1
     narray<T> operator[](std::size_t idx) const {
-        if(sizes.empty()) {
+        if (sizes.empty()) {
             return *this;
         }
         std::vector<int> new_sizes = sizes;
@@ -315,7 +315,7 @@ public:
     }
 
     narray<T> &operator+=(narray<T> const &rhs) {
-        if ( mem_size < rhs.mem_size) {//todo expand mem mb?
+        if (mem_size < rhs.mem_size) {//todo expand mem mb?
             throw_matrix_noneq_error(sizes, rhs.sizes);
         }
         for (int i = 0; i < rhs.mem_size; i++) {
@@ -440,17 +440,17 @@ public:
         return sizes;
     }
 
-    iterator insert (iterator position, const value_type& val)  ;
+    iterator insert(iterator position, const value_type &val);
 
 private:
     template<class B,
             template<class...> class Container,
             class... extras>
     void flat_transfer(std::vector<T> &target, const Container<B, extras...> &source, std::vector<int> &flat_sizes) {
-
         for (const auto &elem: source) {
             if constexpr (std::is_same<T, B>::value) {
-                target.push_back(elem);
+                target.insert(target.end(), source.begin(), source.end());
+                return;
             } else {
 
                 flat_transfer(target, elem, flat_sizes);
@@ -468,7 +468,6 @@ private:
         }
     }
 };
-
 
 
 #endif //NEURONET_NARRAY_H
