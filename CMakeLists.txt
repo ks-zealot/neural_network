@@ -33,6 +33,8 @@ set(CURSES_LIBRARIES "/usr/lib/x86_64-linux-gnu/libncursesw.so;/usr/lib/x86_64-l
 
 add_executable(Neuronet
         #        Neuronet
+        mempool/counting_mem_allocator.h
+        mempool/counting_mem_allocator.cpp
         global.cpp
         utils.cpp
         main.cpp
@@ -61,7 +63,7 @@ target_link_libraries(${PROJECT_NAME} spdlog::spdlog_header_only ${ZLIB_LIBRARIE
 
 #add_executable(test_exec test/main_test.cpp narray/narray.cpp)
 # example library
-add_library(narray  utils/narray_util.cpp narray/narray_coord.cpp narray/narray.cpp)
+add_library(narray   mempool/counting_mem_allocator.h mempool/counting_mem_allocator.cpp utils/narray_util.cpp narray/narray_coord.cpp narray/narray.cpp)
 
 
 # testing binary

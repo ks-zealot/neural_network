@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include "narray.h"
+#include "mempool/counting_mem_allocator.h"
 
 template<typename T>
 narray<T>::narray() {
@@ -31,7 +32,7 @@ narray<T>::narray(const narray<T> &out) {
     mem_size = out.mem_size;
     stride_info = out.stride_info;
     std::allocator<T> alloc;
-    mem = alloc.allocate(out.mem_size);
+    mem =  counting_mem_allocator::allocate<T>(alloc, out.mem_size);
     mem_policy = new standart_policy<T>();
     allocator = alloc;
     memcpy(mem, out.mem, sizeof(T) * out.mem_size);
@@ -48,7 +49,7 @@ narray<T>::narray(T t, memory_policy<T> *policy ,
     std::vector<int> stride_info;
     stride_info.push_back(1);
     mem_size = 1;
-    mem = alloc.allocate(1);
+    mem =  counting_mem_allocator::allocate<T>(alloc, 1);
     *mem = t;
     this->stride_info = stride_info;
 }
@@ -105,7 +106,7 @@ narray<T>::narray(std::vector<int> sizes, filler<T> &filler) {
         stride_info[i] = pow(sizes[i], i);
     }
     this->stride_info = stride_info;
-    mem = allocator.allocate(mem_size);
+    mem =  counting_mem_allocator::allocate<T>(allocator, mem_size);
     filler.fill(mem, mem_size);
 }
 

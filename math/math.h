@@ -128,7 +128,7 @@ Container dot_product(const Container &a, const Container &b) {
     if (a.get_sizes().size() == 1 && b.get_sizes().size() == 1) {
 
         std::allocator<T> _allocator;
-        T *new_mem = _allocator.allocate(1);
+        T *new_mem = counting_mem_allocator::allocate<T>(_allocator,  1);
         *new_mem = T(0);
         Container res = Container(std::vector<int>(), new_mem);
         for (auto &&[x, y]: _zip(a, b)) {
@@ -147,7 +147,7 @@ Container dot_product(const Container &a, const Container &b) {
                       [&new_mem_size](int i) mutable {
                           new_mem_size *= i;
                       });
-        T *new_mem = _allocator.allocate(new_mem_size);
+        T *new_mem = counting_mem_allocator::allocate<T>(_allocator,  new_mem_size);
         Container res = Container(new_sizes, new_mem);
         transposed.transpose();
         for (int i = 0; i < new_sizes.front(); i++) {
@@ -169,7 +169,7 @@ Container dot_product(const Container &a, const Container &b) {
                       [&new_mem_size](int i) mutable {
                           new_mem_size *= i;
                       });
-        T *new_mem = _allocator.allocate(new_mem_size);
+        T *new_mem =  counting_mem_allocator::allocate<T>(_allocator,  new_mem_size);
         Container res = Container(new_sizes, new_mem);
         std::insert_iterator<Container> insert_it(res, res.begin());
         for (int i = 0; i < new_sizes.front(); i++) {

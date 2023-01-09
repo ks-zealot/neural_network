@@ -1,6 +1,9 @@
 #include <iostream>
+#include <cassert>
 #include "narray/narray.h"
 #include "math/math.h"
+
+void foo();
 
 //
 // Created by zealot on 16.12.2022.
@@ -26,13 +29,24 @@ void print_matrix(narray<T> &array) {
 //-0.0413897 0.622618
 
 int main(int argc, const char *argv[]) {
+    assert (counting_mem_allocator::mem_allocated == 0);
+    assert (counting_mem_allocator::mem_deallocated == 0);
+    assert (counting_mem_allocator::mem_call_allocate == 0);
+    assert (counting_mem_allocator::mem_call_deallocate == 0);
+    foo();
+    assert (counting_mem_allocator::mem_allocated == counting_mem_allocator::mem_deallocated);
+    assert (counting_mem_allocator::mem_call_allocate == counting_mem_allocator::mem_call_deallocate);
+    return 0;
+}
+
+void foo() {
     narray<float> obj1 = narray<float>({2, 3}, random_filler<float>::GetInstance());
     print_matrix<float>(obj1);
     std::cout << std::endl;
     narray<float> obj2 = narray<float>({3, 2}, random_filler<float>::GetInstance());
     print_matrix<float>(obj2);
     std::cout << std::endl;
-    narray<float> dp = dot_product<narray<float>, float>(obj1, obj2);
-    print_matrix<float>(dp);
-    return 0;
+    for(int i =0; i < 10; i++) {
+        narray<float> dp = dot_product<narray<float>, float>(obj1, obj2);
+    }
 }

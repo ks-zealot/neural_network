@@ -3,9 +3,23 @@
 //
 
 
+#include <cassert>
 #include "neural_network/Network.h"
 
+void foo1();
+
 int main(int argc, const char *argv[]) {
+    assert (counting_mem_allocator::mem_allocated == 0);
+    assert (counting_mem_allocator::mem_deallocated == 0);
+    assert (counting_mem_allocator::mem_call_allocate == 0);
+    assert (counting_mem_allocator::mem_call_deallocate == 0);
+    foo1();//todo тут течет
+    assert (counting_mem_allocator::mem_allocated == counting_mem_allocator::mem_deallocated);
+    assert (counting_mem_allocator::mem_call_allocate == counting_mem_allocator::mem_call_deallocate);
+    return 0;
+}
+
+void foo1() {
     MNISTReader reader("", "");
     Network network({28 * 28, 30, 10}, reader);
     network.init();
@@ -19,5 +33,4 @@ int main(int argc, const char *argv[]) {
     }
     network.train(img, &label, 28 * 28, 1, 1, 1);
     delete [] img;
-    return 0;
 }

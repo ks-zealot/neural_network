@@ -11,6 +11,7 @@
 
 #include "../utils/narray_util.h"
 #include "narray_coord.h"
+#include "mempool/counting_mem_allocator.h"
 
 #ifndef NEURONET_NARRAY_H
 #define NEURONET_NARRAY_H
@@ -26,7 +27,7 @@ public:
 template<typename T>
 class standart_policy : public memory_policy<T> {
     virtual void free(std::allocator<T> alloc, T *mem, std::size_t size) {
-        alloc.deallocate(mem, size);
+        counting_mem_allocator::deallocate<T>(alloc, mem,  size);
     }
 };
 
@@ -107,7 +108,7 @@ public:
                       [this](int i) mutable {
                           mem_size *= i;
                       });
-        mem = allocator.allocate(mem_size);
+        mem =  counting_mem_allocator::allocate<T>(allocator,  mem_size);
         for (int i = 0; i < mem_size; i++) {
             mem[i] = target[i];
         }
@@ -295,7 +296,7 @@ public:
         mem_size = rhs.mem_size;
         stride_info = rhs.stride_info;
         std::allocator<T> alloc;
-        mem = alloc.allocate(rhs.mem_size);
+        mem =  counting_mem_allocator::allocate<T>(alloc,  rhs.mem_size);
         mem_policy = new standart_policy<T>();
         allocator = alloc;
         memcpy(mem, rhs.mem, sizeof(T) * rhs.mem_size);
