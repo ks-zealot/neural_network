@@ -6,16 +6,17 @@
 #include <cassert>
 #include "neural_network/Network.h"
 
-void foo1();
 
+void foo1();
 int main(int argc, const char *argv[]) {
-    assert (counting_mem_allocator::mem_allocated == 0);
-    assert (counting_mem_allocator::mem_deallocated == 0);
-    assert (counting_mem_allocator::mem_call_allocate == 0);
-    assert (counting_mem_allocator::mem_call_deallocate == 0);
+    assert (counting_mem_allocator::data.mem_allocated == 0);
+    assert (counting_mem_allocator::data.mem_deallocated == 0);
+    assert (counting_mem_allocator::data.mem_call_allocate == 0);
+    assert (counting_mem_allocator::data.mem_call_deallocate == 0);
     foo1();//todo тут течет
-    assert (counting_mem_allocator::mem_allocated == counting_mem_allocator::mem_deallocated);
-    assert (counting_mem_allocator::mem_call_allocate == counting_mem_allocator::mem_call_deallocate);
+    counting_mem_allocator::print_profiling();
+    assert (counting_mem_allocator::data.mem_allocated == counting_mem_allocator::data.mem_deallocated);
+    assert (counting_mem_allocator::data.mem_call_allocate == counting_mem_allocator::data.mem_call_deallocate);
     return 0;
 }
 

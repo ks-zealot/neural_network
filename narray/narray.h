@@ -27,7 +27,7 @@ public:
 template<typename T>
 class standart_policy : public memory_policy<T> {
     virtual void free(std::allocator<T> alloc, T *mem, std::size_t size) {
-        counting_mem_allocator::deallocate<T>(alloc, mem,  size);
+        counting_mem_allocator::deallocate<T>(alloc, mem, size);
     }
 };
 
@@ -108,7 +108,7 @@ public:
                       [this](int i) mutable {
                           mem_size *= i;
                       });
-        mem =  counting_mem_allocator::allocate<T>(allocator,  mem_size);
+        mem = counting_mem_allocator::allocate<T>(allocator, mem_size);
         for (int i = 0; i < mem_size; i++) {
             mem[i] = target[i];
         }
@@ -292,11 +292,15 @@ public:
 //    }
 
     narray<T> &operator=(const narray<T> &rhs) {
+        if (mem) {//в случае если присвоение происходит уже инициализированному наррай происходит утечка из васиной уздечки ^W^W^^W^W^W^W^W^ памяти
+            counting_mem_allocator::deallocate(allocator, mem, mem_size);
+            mem = nullptr;
+        }
         sizes = rhs.sizes;
         mem_size = rhs.mem_size;
         stride_info = rhs.stride_info;
         std::allocator<T> alloc;
-        mem =  counting_mem_allocator::allocate<T>(alloc,  rhs.mem_size);
+        mem = counting_mem_allocator::allocate<T>(alloc, rhs.mem_size);
         mem_policy = new standart_policy<T>();
         allocator = alloc;
         memcpy(mem, rhs.mem, sizeof(T) * rhs.mem_size);
@@ -305,6 +309,10 @@ public:
 
 
     narray<T> &operator=(narray<T> &&rhs) {
+        if (mem) {//в случае если присвоение происходит уже инициализированному наррай происходит утечка из васиной уздечки ^W^W^^W^W^W^W^W^ памяти
+            counting_mem_allocator::deallocate(allocator, mem, mem_size);
+            mem = nullptr;
+        }
         sizes = rhs.sizes;
         mem_size = rhs.mem_size;
         allocator = rhs.allocator;
@@ -428,7 +436,7 @@ public:
 protected:
 
 private:
-    T *mem;
+    T *mem = nullptr;
     std::allocator<T> allocator;
     std::vector<int> sizes;
     std::vector<int> stride_info;

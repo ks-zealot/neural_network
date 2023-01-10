@@ -69,18 +69,17 @@ training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y
 //            sigmoid_prime(zs[-1])
     narray<float> delta = cost_derivative(activations[activations.size() - 1], y) *
                           sigmoid_prime<float, narray<float>>(zs[zs.size() - 1]);
-    nabla_b.insert(nabla_b.cbegin() + (nabla_b.size() - 1), delta);
-    nabla_w.insert(nabla_w.cbegin() + (nabla_w.size() - 1),
-                   dot_product<narray<float>, float>(delta, activations[activations.size() - 2]));
+    nabla_b[nabla_b.size() - 1] = delta;
+    nabla_w[nabla_w.size() - 1] = dot_product<narray<float>, float>(delta, activations[activations.size() -
+                                                                                       2]); //todo insert небезопасен, течет
     //по ходу тут транспонирование е нужно
     for (int l = 2; l != num_layer; l++) {
         narray<float> z = zs[zs.size() - l + 1];
         delta = dot_product<narray<float>, float>(weights[weights.size() - l + 1], delta) *
                 sigmoid_prime<float, narray<float>>(zs[zs.size() - l + 1]);
-        nabla_b.insert(nabla_b.cbegin() + (nabla_b.size() - l + 1), delta);
-        narray<float> a = activations[activations.size() - l + 1];
-        nabla_w.insert(nabla_w.cbegin() + (nabla_w.size() - l + 1),
-                       dot_product<narray<float>, float>(delta, activations[activations.size() - l + 1]));
+        nabla_b[nabla_b.size() - l + 1] = delta;
+        nabla_w[nabla_w.size() - l + 1] = dot_product<narray<float>, float>(delta,
+                                                                            activations[activations.size() - l + 1]);
     }
     return training_data_tuple(nabla_b, nabla_w);
 }
@@ -97,7 +96,9 @@ void Network::update_mini_butch(mini_batch_view mini_batch, float eta) {
     for (std::tuple<narray<float>, narray<float>> &tpl: mini_batch) {
         narray<float> &x = std::get<0>(tpl);
         narray<float> &y = std::get<1>(tpl);
+
         training_data_tuple back_prp_res = back_propagation(x, y);
+
         std::vector<narray<float>> &delta_nabla_b = std::get<0>(back_prp_res);
         std::vector<narray<float>> &delta_nabla_w = std::get<1>(back_prp_res);
         int idx = 0;
@@ -158,6 +159,7 @@ Network::train(unsigned char *images, unsigned char *labels, unsigned image_size
 //        prepared_img.clear();
     }
     SGD(container, epochs, mini_batch_size);
+
 }
 
 int Network::evaluate(narray<float> &image) {

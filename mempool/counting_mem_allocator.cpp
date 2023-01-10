@@ -4,7 +4,6 @@
 
 #include "counting_mem_allocator.h"
 
-unsigned long counting_mem_allocator::mem_allocated = 0l;
-unsigned long counting_mem_allocator::mem_deallocated = 0l;
-unsigned long counting_mem_allocator::mem_call_allocate = 0l;
-unsigned long counting_mem_allocator::mem_call_deallocate = 0l;
+counting_mem_data counting_mem_allocator::data;
+std::string counting_mem_allocator::current_label = "";
+std::map<std::string, counting_mem_data> counting_mem_allocator::data_map;

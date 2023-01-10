@@ -15,6 +15,10 @@ narray<T>::narray() {
 
 template<typename T>
 narray<T>::narray(narray<T> &&rhs) noexcept {
+    if (mem) {//в случае если присвоение происходит уже инициализированному наррай происходит утечка из васиной уздечки ^W^W^^W^W^W^W^W^ памяти
+        counting_mem_allocator::deallocate(allocator, mem, mem_size);
+        mem = nullptr;
+    }
     sizes = rhs.sizes;
     mem_size = rhs.mem_size;
     allocator = rhs.allocator;
@@ -28,6 +32,10 @@ narray<T>::narray(narray<T> &&rhs) noexcept {
 
 template<typename T>
 narray<T>::narray(const narray<T> &out) {
+    if (mem) {//в случае если присвоение происходит уже инициализированному наррай происходит утечка из васиной уздечки ^W^W^^W^W^W^W^W^ памяти
+        counting_mem_allocator::deallocate(allocator, mem, mem_size);
+        mem = nullptr;
+    }
     sizes = out.sizes;
     mem_size = out.mem_size;
     stride_info = out.stride_info;

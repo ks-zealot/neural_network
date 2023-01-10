@@ -23,7 +23,7 @@ T sigmoid_prime(T z) {
 
 template<typename T, typename Container>
 Container sigmoid(const Container &z) {
-    Container c = Container(z);
+    Container c = z;
     std::transform(z.begin(), z.end(),
                    c.begin(),
                    [](T t) { return sigmoid(t); });
@@ -32,7 +32,7 @@ Container sigmoid(const Container &z) {
 
 template<typename T, typename Container>
 Container sigmoid_prime(const Container &z) {
-    Container c = Container(z);
+    Container c = z;
     std::transform(z.begin(), z.end(),
                    c.begin(),
                    [](T t) { return sigmoid_prime(t); });
