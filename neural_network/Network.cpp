@@ -12,6 +12,17 @@
 #include "utils.h"
 #include "logging/log.h"
 
+void print_matrix(narray<float> &array) {
+    for (int i = 0; i < array.get_sizes().front(); i++) {
+        for (int j = 0; j < array.get_sizes().back(); j++) {
+            float t = *(array.at({i, j}));
+            std::cout << " " << t;
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+};
+
 //[784, 30, 10]
 void Network::init() {
     num_layer = sizes.size();
@@ -22,8 +33,8 @@ void Network::init() {
 }
 
 
-void Network::print() {
-    print_weight(28, 28, weights[0].at({0, 0}));
+void Network::print(narray<float> &t) {
+    print_weight(28, 28, t.at({0, 0}));
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
@@ -52,24 +63,40 @@ training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y
         narray<float> z = dot_product<narray<float>, float>(w, activation) + b;
         zs.push_back(z);
         activation = sigmoid<float, narray<float>>(z);
-        activations.push_back(activation);// тут проследить, чтобы каждый раз была копия
+        activations.push_back(activation);
     }
 //    delta = self.cost_derivative(activations[-1], y) * \
 //            sigmoid_prime(zs[-1])
     narray<float> delta = cost_derivative(activations[activations.size() - 1], y) *
                           sigmoid_prime<float, narray<float>>(zs[zs.size() - 1]);
     nabla_b[nabla_b.size() - 1] = delta;
-    nabla_w[nabla_w.size() - 1] = dot_product<narray<float>, float>(delta, activations[activations.size() -
-                                                                                       2]); //todo insert небезопасен, течет
-    //по ходу тут транспонирование е нужно
-    for (int l = 2; l <= num_layer; l++) {
-        narray<float> z = zs[zs.size() - l + 1];
-        delta = dot_product<narray<float>, float>(weights[weights.size() - l + 1], delta) *
-                sigmoid_prime<float, narray<float>>(zs[zs.size() - l + 1]);
-        nabla_b[nabla_b.size() - l + 1] = delta;
-        nabla_w[nabla_w.size() - l + 1] = dot_product<narray<float>, float>(delta,
-                                                                            activations[activations.size() - l + 1]);
+    narray<float> a = activations[activations.size() -
+                                  2];
+    a.add_dim();
+    a.transpose();
+    narray<float> d = delta;
+    d.add_dim();//todo убрать мусор
+    nabla_w[nabla_w.size() - 1] = dot_product<narray<float>, float>(d, a); //todo   тут все таки нужно транспонирование
+    for (int l = 2; l < num_layer; l++) {
+        narray<float> z = zs[zs.size() - l ];
+        narray<float> w = weights[weights.size() - l + 1];
+//        w.transpose();
+        narray<float> d = delta;
+        d.add_dim();
+        z.add_dim();
+        delta = dot_product<narray<float>, float>(w, d) *
+                sigmoid_prime<float, narray<float>>(z);
+        nabla_b[nabla_b.size() - l] = d;
+        narray<float> a = activations[activations.size() - l + 1];
+        a.add_dim();
+        a.transpose();
+         d = delta;
+//        d.add_dim();
+        nabla_w[nabla_w.size() - l ] = dot_product<narray<float>, float>(d, a);
     }
+//    print_matrix(nabla_w[0]);
+//    std::cout << std::endl;
+//    print_matrix(nabla_w[1]);
     return training_data_tuple(nabla_b, nabla_w);
 }
 
@@ -122,8 +149,13 @@ Network::SGD(training_data_container &training_data, training_data_container &te
         for (int k = 0; k < training_data.size() / mini_batch_size; k += mini_batch_size) {
             mini_batch_view mini_butch = mini_batch_view(training_data.begin() + (k * mini_batch_size),
                                                          training_data.begin() + ((k + 1) * mini_batch_size));
+            narray<float> t = weights[0];
+            print_matrix(weights[0]);
+            std::cout << " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
             update_mini_butch(mini_butch, eta);
-            print();
+            t -= weights[0];
+            print_matrix(weights[0]);
+            print(t);
         }
         unsigned count = 0;
         for (std::tuple<narray<float>, narray<float>> &tdc: test_data) {

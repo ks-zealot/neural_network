@@ -152,6 +152,18 @@ add_test(
         COMMAND $<TARGET_FILE:narray_test_fill_predefined_values>
 )
 
+add_executable(narray_test_minus_assign test/narray_test_minus_assign.cpp)
+target_link_libraries(narray_test_minus_assign PRIVATE narray)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_minus_assign
+        COMMAND $<TARGET_FILE:narray_test_minus_assign>
+)
+
 add_executable(narray_test_fill_predefined_values_1 test/narray_test_fill_predefined_values_1.cpp)
 target_link_libraries(narray_test_fill_predefined_values_1 PRIVATE narray)
 

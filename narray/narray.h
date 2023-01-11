@@ -272,13 +272,13 @@ public:
         std::reverse(new_stride_info.begin(), new_stride_info.end());
         new_sizes.erase(new_sizes.begin());
         new_stride_info.erase(new_stride_info.begin());
-        if (idx > new_sizes.front()) {
-            std::string exp_message("Index out of bound exception: ");
-            exp_message.append(std::to_string(idx));
-            exp_message.append(" > ");
-            exp_message.append(std::to_string((*new_sizes.begin())));
-            throw new std::runtime_error(exp_message);
-        }
+//        if (idx > new_sizes.front()) {
+//            std::string exp_message("Index out of bound exception: ");
+//            exp_message.append(std::to_string(idx));
+//            exp_message.append(" > ");
+//            exp_message.append(std::to_string((*new_sizes.begin())));
+//            throw new std::runtime_error(exp_message);
+//        }
         std::vector<int> offset = sizes;
         std::fill(offset.begin(), offset.end(), 0);
         offset[0] = idx;
@@ -433,6 +433,8 @@ public:
 
     T *at(std::vector<int> coord) const;
 
+    void add_dim();
+
 protected:
 
 private:
@@ -477,6 +479,12 @@ private:
         }
     }
 };
+
+template<typename T>
+void narray<T>::add_dim() {
+    sizes.push_back(1);
+    stride_info.push_back(0);
+}
 
 
 #endif //NEURONET_NARRAY_H

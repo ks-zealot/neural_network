@@ -30,11 +30,13 @@ float sigmoid(float z) {//todo найти способ не дублироват
 void print_weight(unsigned int Width, unsigned int Height, float *weight) {
     unsigned int x = 0;
     unsigned int y = 0;
+    float t = weight[10];
 //    start_color();
 //    init_pair(1, COLOR_MAGENTA, COLOR_BLACK);
 //    init_pair(2, COLOR_GREEN, COLOR_BLACK);
     for (unsigned int j = 0; j < Height; j++) {
         for (unsigned int i = 0; i < Width; i++) {
+            float f = fabs(sigmoid(weight[i + (j * Width)]));
             unsigned int pos = fabs(sigmoid(weight[i + (j * Width)]) * 5.f);
             print_pixel(pos, x, y);
             x += 4;

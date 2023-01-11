@@ -48,7 +48,7 @@ private:
 public:
     void init();
 
-    void print();
+    void print(narray<float>& t);
 
     void train(unsigned char * images,unsigned char * labels, unsigned image_size, unsigned size,  unsigned int validation_size, unsigned epochs, unsigned mini_batch_size);
     //    def evaluate(self, test_data):

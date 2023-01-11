@@ -149,7 +149,7 @@ Container dot_product(const Container &a, const Container &b) {
                       });
         T *new_mem = counting_mem_allocator::allocate<T>(_allocator,  new_mem_size);
         Container res = Container(new_sizes, new_mem);
-        transposed.transpose();
+//        transposed.transpose();
         for (int i = 0; i < new_sizes.front(); i++) {
             for (int j = 0; j < new_sizes.back(); j++) {
                 Container row1 = a[i];
