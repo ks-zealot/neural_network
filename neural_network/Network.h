@@ -34,7 +34,7 @@ using mini_batch_view = view<std::vector<std::tuple<narray<float>, narray<float>
 
 using training_data_container = std::vector<std::tuple<narray<float>, narray<float>>>;
 
-using training_data_tuple = std::tuple<std::vector<narray<float>>, std::vector<narray<float>>>;
+using training_data_tuple = std::tuple<std::vector<narray<float>>, std::vector<narray<float>>>;//todo переименовать
 
 class Network {
 public:
@@ -50,7 +50,7 @@ public:
 
     void print();
 
-    void train(unsigned char * images,unsigned char * labels, unsigned image_size, unsigned size, unsigned epochs, unsigned mini_batch_size);
+    void train(unsigned char * images,unsigned char * labels, unsigned image_size, unsigned size,  unsigned int validation_size, unsigned epochs, unsigned mini_batch_size);
     //    def evaluate(self, test_data):
 //    """Return the number of test inputs for which the neural
 //    network outputs the correct result. Note that the neural
@@ -68,7 +68,7 @@ private:
 
     void update_mini_butch(mini_batch_view mini_batch, float eta);
 
-    void SGD(training_data_container& training_data, int epochs, int mini_batch_size);
+    void SGD(training_data_container& training_data,  training_data_container &test_data,  int epochs, int mini_batch_size);
 
 
     float eta = 3.f;

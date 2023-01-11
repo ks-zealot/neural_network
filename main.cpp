@@ -21,6 +21,7 @@
 #include "dataset_readers/MNISTReader.h"
 #include "narray/narray.h"
 #include "neural_network/Network.h"
+#include "utils.h"
 // struct progress {
 //    char *pr;
 //    size_t size;
@@ -78,11 +79,14 @@ int main(int argc, const char *argv[]) {
 //    reader.train();
 //    reader.close();
 
-
-Network neuronet({28 * 28, 30, 10}, reader);
-neuronet.init();
-neuronet.print();
-
+ initscr();
+//    start_color();
+//    init_pair(1, COLOR_GREEN, COLOR_GREEN);
+//    init_pair(2, COLOR_BLACK, COLOR_BLACK);
+    print_pixel(2, 0, 0);
+    refresh();
+    std::this_thread::sleep_for(std::chrono::seconds(100));
+endwin();
 //  threadPool.Start();
 //
 // MNISTsource MNISTsource(
@@ -91,7 +95,6 @@ neuronet.print();
 // MNISTsource.retrieve();
 //threadPool.Stop();
 //  info("return");
-  narray<int> o =   narray<int>({2, 2});
     return 0;
     //    initscr();
     //    resizeterm(2, 100);

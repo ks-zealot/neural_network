@@ -25,7 +25,7 @@ public:
 };
 
 template<typename T>
-class standart_policy : public memory_policy<T> {
+class standart_policy : public memory_policy<T> {//todo возращать указатель на статическую перменную
     virtual void free(std::allocator<T> alloc, T *mem, std::size_t size) {
         counting_mem_allocator::deallocate<T>(alloc, mem, size);
     }
@@ -309,7 +309,7 @@ public:
 
 
     narray<T> &operator=(narray<T> &&rhs) {
-        if (mem) {//в случае если присвоение происходит уже инициализированному наррай происходит утечка из васиной уздечки ^W^W^^W^W^W^W^W^ памяти
+        if (mem) {
             counting_mem_allocator::deallocate(allocator, mem, mem_size);
             mem = nullptr;
         }
@@ -324,7 +324,7 @@ public:
     }
 
     narray<T> &operator+=(narray<T> const &rhs) {
-        if (mem_size < rhs.mem_size) {//todo expand mem mb?
+        if (mem_size < rhs.mem_size) {
             throw_matrix_noneq_error(sizes, rhs.sizes);
         }
         for (int i = 0; i < rhs.mem_size; i++) {

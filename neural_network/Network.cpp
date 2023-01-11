@@ -23,24 +23,13 @@ void Network::init() {
 
 
 void Network::print() {
-    for (narray<float> &n: weights) {
-        sigmoid<float, narray<float>>(n);
-    }
-    initscr();
-    while (true) {
-        print_weight(28, 28, weights[0].at({0, 0}));
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-        weights[0] += narray<float>({28 * 28, 30}, random_filler<float>::GetInstance());
-        weights[0] = sigmoid<float, narray<float>>(weights[0]);
-    }
-    endwin();
+    print_weight(28, 28, weights[0].at({0, 0}));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 narray<float> &Network::feed_forward(narray<float> &a) {
-
-    for (narray<float> w: weights) {
-        narray<float> v = dot_product<narray<float>, float>(w, a) + biases[0];
-        a = sigmoid<float, narray<float>>(v);
+    for (auto &&[b, w]: _zip(biases, weights)) {
+        a = sigmoid<float, narray<float>>(dot_product<narray<float>, float>(w, a) + b);
     }
     return a;
 }
@@ -48,7 +37,7 @@ narray<float> &Network::feed_forward(narray<float> &a) {
 training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y) {
     std::vector<narray<float>> nabla_b;
     for (narray<float> &b: biases) {
-        nabla_b.push_back(narray<float>(b.get_sizes()));
+        nabla_b.push_back(narray<float>(b.get_sizes()));//todo не нужно, просто заранее задать размер вектора
     }
     std::vector<narray<float>> nabla_w;
     for (narray<float> &w: weights) {
@@ -73,7 +62,7 @@ training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y
     nabla_w[nabla_w.size() - 1] = dot_product<narray<float>, float>(delta, activations[activations.size() -
                                                                                        2]); //todo insert небезопасен, течет
     //по ходу тут транспонирование е нужно
-    for (int l = 2; l != num_layer; l++) {
+    for (int l = 2; l <= num_layer; l++) {
         narray<float> z = zs[zs.size() - l + 1];
         delta = dot_product<narray<float>, float>(weights[weights.size() - l + 1], delta) *
                 sigmoid_prime<float, narray<float>>(zs[zs.size() - l + 1]);
@@ -126,24 +115,36 @@ void Network::update_mini_butch(mini_batch_view mini_batch, float eta) {
 }
 
 void
-Network::SGD(training_data_container &training_data, int epochs, int mini_batch_size) {
+Network::SGD(training_data_container &training_data, training_data_container &test_data, int epochs,
+             int mini_batch_size) {
     for (int epoch = 0; epoch < epochs; epoch++) {
         std::random_shuffle(training_data.begin(), training_data.end());
         for (int k = 0; k < training_data.size() / mini_batch_size; k += mini_batch_size) {
             mini_batch_view mini_butch = mini_batch_view(training_data.begin() + (k * mini_batch_size),
                                                          training_data.begin() + ((k + 1) * mini_batch_size));
             update_mini_butch(mini_butch, eta);
-
-            //todo обрабатывать тест дата
+            print();
         }
-        info("{} epoch from {} epochs", epoch, epochs);
+        unsigned count = 0;
+        for (std::tuple<narray<float>, narray<float>> &tdc: test_data) {
+            if (evaluate(std::get<0>(tdc)) == max_arg(std::get<1>(tdc))) {
+                count++;
+            }
+        }
+        if (count > 0) {
+            info("Epoch {}: {} / {}", epoch, epochs, (float) count / (float) test_data.size() * 100.f);
+        } else {
+            info("{} epoch from {} epochs", epoch, epochs);
+        }
     }
 }
 
 void
-Network::train(unsigned char *images, unsigned char *labels, unsigned image_size, unsigned int size, unsigned epochs,
+Network::train(unsigned char *images, unsigned char *labels, unsigned image_size, unsigned int size,
+               unsigned int validation_size, unsigned epochs,
                unsigned mini_batch_size) {
     training_data_container container = training_data_container(size);
+    training_data_container test_data = training_data_container(validation_size);
     std::vector<float> prepared_img = std::vector<float>(image_size);
     std::vector<unsigned char> img = std::vector<unsigned char>(image_size);
     std::vector<float> vectorized = std::vector<float>(10);
@@ -155,10 +156,18 @@ Network::train(unsigned char *images, unsigned char *labels, unsigned image_size
         vectorized[*(labels + i)] = 1.f;
         container[i] = std::make_tuple(narray<float>(prepared_img), narray<float>(vectorized));
         vectorized[*(labels + i)] = 0.f;
-//        img.clear();
-//        prepared_img.clear();
     }
-    SGD(container, epochs, mini_batch_size);
+    for (int i = 0; i < validation_size; i++) {
+        for (int j = 0; j < image_size; j++) {
+            img[j] = (*(images + j + (image_size * i)));
+        }
+        //todo заменить на инсерт с вьюшкой
+        char_to_float_conversion(img, prepared_img);
+        vectorized[*(labels + i)] = 1.f;
+        test_data[i] = std::make_tuple(narray<float>(prepared_img), narray<float>(vectorized));
+        vectorized[*(labels + i)] = 0.f;
+    }
+    SGD(container, test_data, epochs, mini_batch_size);
 
 }
 

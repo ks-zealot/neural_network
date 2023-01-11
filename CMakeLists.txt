@@ -68,7 +68,7 @@ add_library(narray   mempool/counting_mem_allocator.h mempool/counting_mem_alloc
 
 # testing binary
 add_executable(narray_test_int test/main_test.cpp)
-target_link_libraries(narray_test_int PRIVATE narray)
+target_link_libraries(narray_test_int PRIVATE narray ${CURSES_LIBRARIES})
 
 # enable testing functionality
 enable_testing()
