@@ -90,7 +90,7 @@ int max_arg(const Container &c) {
 }
 
 template<typename n_array>
-n_array cost_derivative(n_array activations, n_array sgm_prime) {
+n_array cost_derivative(n_array& activations, n_array& sgm_prime) {
     n_array res = activations - sgm_prime;
     return res;
 }
@@ -137,7 +137,6 @@ Container dot_product(const Container &a, const Container &b) {
         return res;
     }
     if (a.get_sizes().size() == 2 && b.get_sizes().size() == 2) {
-        Container transposed = b;
         std::vector<int> new_sizes;
         new_sizes.push_back(a.get_sizes().front());
         new_sizes.push_back(b.get_sizes().back());
@@ -149,11 +148,10 @@ Container dot_product(const Container &a, const Container &b) {
                       });
         T *new_mem = counting_mem_allocator::allocate<T>(_allocator,  new_mem_size);
         Container res = Container(new_sizes, new_mem);
-//        transposed.transpose();
         for (int i = 0; i < new_sizes.front(); i++) {
             for (int j = 0; j < new_sizes.back(); j++) {
                 Container row1 = a[i];
-                Container row2 = transposed[j];
+                Container row2 = b[j];
                 for (auto &&[x, y]: _zip(row1, row2)) {
                     res[i][j] += x * y;
                 }

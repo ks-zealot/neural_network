@@ -36,6 +36,7 @@ int main(int argc, const char *argv[]) {
                                           {0.064087, 1.15236}};
     narray<float> obj1 = narray<float>(v1);
     narray<float> obj2 = narray<float>(v2);
+    obj2.transpose();
     narray<float> dp = dot_product<narray<float>, float>(obj1, obj2);
     print_matrix<float>(dp);
     return 0;

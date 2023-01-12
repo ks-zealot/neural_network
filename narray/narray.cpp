@@ -40,7 +40,7 @@ narray<T>::narray(const narray<T> &out) {
     mem_size = out.mem_size;
     stride_info = out.stride_info;
     std::allocator<T> alloc;
-    mem =  counting_mem_allocator::allocate<T>(alloc, out.mem_size);
+    mem = counting_mem_allocator::allocate<T>(alloc, out.mem_size);
     mem_policy = new standart_policy<T>();
     allocator = alloc;
     memcpy(mem, out.mem, sizeof(T) * out.mem_size);
@@ -50,14 +50,14 @@ narray<T>::narray(const narray<T> &out) {
 
 
 template<typename T>
-narray<T>::narray(T t, memory_policy<T> *policy ,
+narray<T>::narray(T t, memory_policy<T> *policy,
                   std::allocator<T> alloc) {
     this->mem_policy = policy;
     this->allocator = alloc;
     std::vector<int> stride_info;
     stride_info.push_back(1);
     mem_size = 1;
-    mem =  counting_mem_allocator::allocate<T>(alloc, 1);
+    mem = counting_mem_allocator::allocate<T>(alloc, 1);
     *mem = t;
     this->stride_info = stride_info;
 }
@@ -114,7 +114,7 @@ narray<T>::narray(std::vector<int> sizes, filler<T> &filler) {
         stride_info[i] = pow(sizes[i], i);
     }
     this->stride_info = stride_info;
-    mem =  counting_mem_allocator::allocate<T>(allocator, mem_size);
+    mem = counting_mem_allocator::allocate<T>(allocator, mem_size);
     filler.fill(mem, mem_size);
 }
 
@@ -126,10 +126,12 @@ narray<T>::~narray() {
 }
 
 template<typename T>
-narray<T> &narray<T>::transpose(int axis1, int axis2) {
-    std::iter_swap(sizes.begin() + axis1, sizes.begin() + axis2);
-    std::iter_swap(stride_info.begin() + axis1, stride_info.begin() + axis2);
-    return *this;
+//возвращает новый наррай
+narray<T> narray<T>::transpose(int axis1, int axis2) {
+    narray<T> copy = *this;
+    std::iter_swap(copy.sizes.begin() + axis1, copy.sizes.begin() + axis2);
+    std::iter_swap(copy.stride_info.begin() + axis1, copy.stride_info.begin() + axis2);
+    return copy;
 }
 
 //| 0,0 | 0,1 | 0,2 |    | 0 | 1 |

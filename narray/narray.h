@@ -429,7 +429,7 @@ public:
     }
 
 
-    narray<T> &transpose(int axis1 = 0, int axis2 = 1);
+    narray<T> transpose(int axis1 = 0, int axis2 = 1);
 
     T *at(std::vector<int> coord) const;
 
@@ -438,7 +438,7 @@ public:
 protected:
 
 private:
-    T *mem = nullptr;
+    T *mem = nullptr;//todo лучше все таки переделть под вектор
     std::allocator<T> allocator;
     std::vector<int> sizes;
     std::vector<int> stride_info;
