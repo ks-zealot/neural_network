@@ -31,6 +31,7 @@ void print_weight(unsigned int Width, unsigned int Height, float *weight) {
     unsigned int x = 0;
     unsigned int y = 0;
     float t = weight[10];
+    float ff = fabs(sigmoid(t));
 //    start_color();
 //    init_pair(1, COLOR_MAGENTA, COLOR_BLACK);
 //    init_pair(2, COLOR_GREEN, COLOR_BLACK);

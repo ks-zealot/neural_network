@@ -13,7 +13,7 @@ int main(int argc, const char *argv[]) {
     assert (counting_mem_allocator::data.mem_deallocated == 0);
     assert (counting_mem_allocator::data.mem_call_allocate == 0);
     assert (counting_mem_allocator::data.mem_call_deallocate == 0);
-    foo1();//todo тут течет
+    foo1();
     counting_mem_allocator::print_profiling();
     assert (counting_mem_allocator::data.mem_allocated == counting_mem_allocator::data.mem_deallocated);
     assert (counting_mem_allocator::data.mem_call_allocate == counting_mem_allocator::data.mem_call_deallocate);
@@ -32,6 +32,6 @@ void foo1() {
     for (int i = 0; i < 28 * 28; i++) {
         img[i] = distribution(generator);
     }
-    network.train(img, &label, 28 * 28, 1, 1, 1);
+    network.train(img, &label, 28 * 28, 1, 0, 1, 1);
     delete [] img;
 }

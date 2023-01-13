@@ -11,11 +11,12 @@
 #include "math/math.h"
 #include "utils.h"
 #include "logging/log.h"
+#include "profiling/time_profiling.h"
 
 void print_matrix(narray<float> &array) {
-    for (int i = 0; i < array.get_sizes().front(); i++) {
-        for (int j = 0; j < array.get_sizes().back(); j++) {
-            float t = *(array.at({i, j}));
+    for (int i = 0; i < 28; i++) {//todo хардкод
+        for (int j = 0; j < 28; j++) {
+            float t = *(array.at({0, j + (i * 28) }));
             std::cout << " " << t;
         }
         std::cout << std::endl;
@@ -26,12 +27,10 @@ void print_matrix(narray<float> &array) {
 //[784, 30, 10]
 void Network::init() {
     num_layer = sizes.size();
-    biases.emplace_back(std::vector({sizes[1]}), random_filler<float>::GetInstance());
-    biases.emplace_back(std::vector({sizes[2]}), random_filler<float>::GetInstance());
-    biases[0].add_dim();
-    biases[1].add_dim();
-    weights.emplace_back(std::vector({sizes[1], sizes[0]}), random_filler<float>::GetInstance());
-    weights.emplace_back(std::vector({sizes[2], sizes[1]}), random_filler<float>::GetInstance());
+    biases.push_back(narray<float>(std::vector({sizes[1], 1}), random_filler<float>::GetInstance()));
+    biases.emplace_back(narray<float>(std::vector({sizes[2], 1}), random_filler<float>::GetInstance()));
+    weights.emplace_back(narray<float>(std::vector({sizes[1], sizes[0]}), random_filler<float>::GetInstance()));
+    weights.emplace_back(narray<float>(std::vector({sizes[2], sizes[1]}), random_filler<float>::GetInstance()));
 }
 
 
@@ -60,36 +59,60 @@ training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y
     std::vector<narray<float>> activations;
     activations.push_back(activation);
     std::vector<narray<float>> zs;
+//    time_profiling::set_label("calculate_activations");
     for (auto &&[b, w]: _zip(biases, weights)) {
 //        z = np.dot(w, activation)+b
         narray<float> z = dot_product<narray<float>, float>(w, activation) + b;
+
         zs.push_back(z);
         activation = sigmoid<float, narray<float>>(z);
+//        print_matrix(z);
+//        std::cout << "++++++++++++++++++++++++++++++++++++++++" << std::endl;
         activations.push_back(activation);
     }
+//    time_profiling::measure("calculate_activations");
 //    delta = self.cost_derivative(activations[-1], y) * \
 //            sigmoid_prime(zs[-1])
+//    narray<float> sp = sigmoid_prime<float, narray<float>>(zs[zs.size() - 1]);
+//    narray<float> cd = cost_derivative<narray<float>>(activations[activations.size() - 1], y);
+//    time_profiling::set_label("calculate_delta");
     narray<float> delta = cost_derivative<narray<float>>(activations[activations.size() - 1], y) *
                           sigmoid_prime<float, narray<float>>(zs[zs.size() - 1]);
+//    time_profiling::measure("calculate_delta");
+//    print_matrix(zs[zs.size() - 1]);
+//    std::cout << "++++++++++++++++++++++++++++++++++++++++" << std::endl;
+//    print_matrix(activations[activations.size() - 1]);
+//
+//    std::cout << "++++++++++++++++++++++++++++++++++++++++" << std::endl;
+//    print_matrix(delta);
+//    time_profiling::set_label("calculate_nabla");
     nabla_b[nabla_b.size() - 1] = delta;
     nabla_w[nabla_w.size() - 1] = dot_product<narray<float>, float>(delta,
                                                                     activations[activations.size() - 2].transpose());
+//    time_profiling::measure("calculate_nabla");
+//    time_profiling::set_label("calculate_bp");
     for (int l = 2; l < num_layer; l++) {
         narray<float> z = zs[zs.size() - l];
+//        time_profiling::set_label("calculate_sigmoid_prime");
         narray<float> sp = sigmoid_prime<float, narray<float>>(z);
+//        time_profiling::measure("calculate_sigmoid_prime");
+//        time_profiling::set_label("calculate_delta");
         delta = dot_product<narray<float>, float>(weights[weights.size() - l + 1].transpose(), delta) * sp;
+//        time_profiling::measure("calculate_delta");
         nabla_b[nabla_b.size() - l] = delta;
-        narray<float> a = activations[activations.size() - l - 1];
+        time_profiling::set_label("calculate_nabla_w");
         nabla_w[nabla_w.size() - l] = dot_product<narray<float>, float>(delta, activations[activations.size() - l -
                                                                                            1].transpose());
+        time_profiling::measure("calculate_nabla_w");
     }
+//    time_profiling::measure("calculate_bp");
 //    print_matrix(nabla_w[0]);
 //    std::cout << std::endl;
 //    print_matrix(nabla_w[1]);
     return training_data_tuple(nabla_b, nabla_w);
 }
 
-void Network::update_mini_butch(mini_batch_view mini_batch, float eta) {
+void Network::update_mini_batch(mini_batch_view mini_batch, float eta) {
     std::vector<narray<float>> nabla_b;
     for (narray<float> &b: biases) {
         nabla_b.push_back(narray<float>(b.get_sizes()));
@@ -99,11 +122,12 @@ void Network::update_mini_butch(mini_batch_view mini_batch, float eta) {
         nabla_w.push_back(narray<float>(w.get_sizes()));
     }
     for (std::tuple<narray<float>, narray<float>> &tpl: mini_batch) {
+//        info("+++++++++++++++++++++++++++++++++++++");
         narray<float> &x = std::get<0>(tpl);
         narray<float> &y = std::get<1>(tpl);
-
+        time_profiling::set_label("back_propagation");
         training_data_tuple back_prp_res = back_propagation(x, y);
-
+        time_profiling::measure("back_propagation");
         std::vector<narray<float>> &delta_nabla_b = std::get<0>(back_prp_res);
         std::vector<narray<float>> &delta_nabla_w = std::get<1>(back_prp_res);
         int idx = 0;
@@ -127,6 +151,7 @@ void Network::update_mini_butch(mini_batch_view mini_batch, float eta) {
             biases[idx] = b - nb * (eta / mini_batch.size());
             idx++;
         }
+//        info("+++++++++++++++++++++++++++++++++++++");
     }
 }
 
@@ -136,15 +161,17 @@ Network::SGD(training_data_container &training_data, training_data_container &te
     for (int epoch = 0; epoch < epochs; epoch++) {
         std::random_shuffle(training_data.begin(), training_data.end());
         for (int k = 0; k < training_data.size() / mini_batch_size; k += mini_batch_size) {
-            mini_batch_view mini_butch = mini_batch_view(training_data.begin() + (k * mini_batch_size),
+            mini_batch_view mini_batch = mini_batch_view(training_data.begin() + (k * mini_batch_size),
                                                          training_data.begin() + ((k + 1) * mini_batch_size));
-            narray<float> t = weights[0];
+//            narray<float> t = weights[0][0];
 //            print_matrix(t);
 //            std::cout << " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-            update_mini_butch(mini_butch, eta);
-            t -= weights[0];
-//            print_matrix(t);
-            print(t);
+
+            update_mini_batch(mini_batch, eta);
+
+//            t -= weights[0][0];
+//            print_matrix(weights[0]);
+//            print(t);
         }
         unsigned count = 0;
         for (std::tuple<narray<float>, narray<float>> &tdc: test_data) {

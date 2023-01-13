@@ -66,7 +66,7 @@ private:
 
     training_data_tuple back_propagation(narray<float> &x, narray<float> &y);
 
-    void update_mini_butch(mini_batch_view mini_batch, float eta);
+    void update_mini_batch(mini_batch_view mini_batch, float eta);
 
     void SGD(training_data_container& training_data,  training_data_container &test_data,  int epochs, int mini_batch_size);
 

@@ -10,7 +10,7 @@ void print_matrix(narray<T> &array) {
     for (int i = 0; i < (*array.get_sizes().begin()); i++) {
         for (int j = 0; j < (*array.get_sizes().begin()); j++) {
             T t = *(array.at({i, j}));
-            std::cout << " " << array.at({i, j});
+            std::cout << " " << t;
         }
         std::cout << std::endl;
     }

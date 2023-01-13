@@ -33,6 +33,8 @@ set(CURSES_LIBRARIES "/usr/lib/x86_64-linux-gnu/libncursesw.so;/usr/lib/x86_64-l
 
 add_executable(Neuronet
         #        Neuronet
+        profiling/time_profiling.h
+        profiling/time_profiling.cpp
         mempool/counting_mem_allocator.h
         mempool/counting_mem_allocator.cpp
         global.cpp
@@ -63,7 +65,8 @@ target_link_libraries(${PROJECT_NAME} spdlog::spdlog_header_only ${ZLIB_LIBRARIE
 
 #add_executable(test_exec test/main_test.cpp narray/narray.cpp)
 # example library
-add_library(narray   mempool/counting_mem_allocator.h mempool/counting_mem_allocator.cpp utils/narray_util.cpp narray/narray_coord.cpp narray/narray.cpp)
+add_library(narray profiling/time_profiling.h profiling/time_profiling.cpp
+        mempool/counting_mem_allocator.h mempool/counting_mem_allocator.cpp utils/narray_util.cpp narray/narray_coord.cpp narray/narray.cpp)
 
 
 # testing binary
@@ -310,4 +313,16 @@ enable_testing()
 add_test(
         NAME narray_test_zip_different_sizes
         COMMAND $<TARGET_FILE:narray_test_zip_different_sizes>
+)
+
+
+add_executable(narray_test_matmul math/math.h global.cpp utils/zip_iterator.h utils/zipper.h test/narray_test_matmul.cpp )
+target_link_libraries(narray_test_matmul PRIVATE narray spdlog::spdlog_header_only)
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_matmul
+        COMMAND $<TARGET_FILE:narray_test_matmul>
 )

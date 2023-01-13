@@ -90,8 +90,8 @@ int max_arg(const Container &c) {
 }
 
 template<typename n_array>
-n_array cost_derivative(n_array& activations, n_array& sgm_prime) {
-    n_array res = activations - sgm_prime;
+n_array cost_derivative(n_array activations, n_array sgm_prime) {
+    n_array res = activations - sgm_prime;//todo чот странное, содержимое наррай не должно меняться при вычитании
     return res;
 }
 
@@ -117,7 +117,18 @@ n_array cost_derivative(n_array& activations, n_array& sgm_prime) {
 //
 //dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])
 //сум продукт это умножение каждого элемента двух векторов и сложение результатот
+template<class ValT>
+void mmult(const ValT *A, int ADim1, int ADim2, const ValT *B, int BDim1, int BDim2, ValT *C) {
+    if (ADim2 != BDim1)
+        throw std::runtime_error("Error sizes off");
 
+    memset((void *) C, 0, sizeof(ValT) * ADim1 * BDim2);
+    int cc2, cc1, cr1;
+    for (cc2 = 0; cc2 < BDim2; ++cc2)
+        for (cc1 = 0; cc1 < ADim2; ++cc1)
+            for (cr1 = 0; cr1 < ADim1; ++cr1)
+                C[cc2 * ADim2 + cr1] += A[cc1 * ADim1 + cr1] * B[cc2 * BDim1 + cc1];
+}//todo этот алгоритм быстрее в миллиард раз примерно. но блас все равно надо прикрутить
 template<typename Container, typename T>
 Container dot_product(const Container &a, const Container &b) {
     if (a.get_sizes().empty() && b.get_sizes().empty()) {
@@ -128,7 +139,7 @@ Container dot_product(const Container &a, const Container &b) {
     if (a.get_sizes().size() == 1 && b.get_sizes().size() == 1) {
 
         std::allocator<T> _allocator;
-        T *new_mem = counting_mem_allocator::allocate<T>(_allocator,  1);
+        T *new_mem = counting_mem_allocator::allocate<T>(_allocator, 1);
         *new_mem = T(0);
         Container res = Container(std::vector<int>(), new_mem);
         for (auto &&[x, y]: _zip(a, b)) {
@@ -146,7 +157,7 @@ Container dot_product(const Container &a, const Container &b) {
                       [&new_mem_size](int i) mutable {
                           new_mem_size *= i;
                       });
-        T *new_mem = counting_mem_allocator::allocate<T>(_allocator,  new_mem_size);
+        T *new_mem = counting_mem_allocator::allocate<T>(_allocator, new_mem_size);
         Container res = Container(new_sizes, new_mem);
         for (int i = 0; i < new_sizes.front(); i++) {
             for (int j = 0; j < new_sizes.back(); j++) {
@@ -155,6 +166,7 @@ Container dot_product(const Container &a, const Container &b) {
                 for (auto &&[x, y]: _zip(row1, row2)) {
                     res[i][j] += x * y;
                 }
+
             }
         }
         return res;
@@ -167,7 +179,7 @@ Container dot_product(const Container &a, const Container &b) {
                       [&new_mem_size](int i) mutable {
                           new_mem_size *= i;
                       });
-        T *new_mem =  counting_mem_allocator::allocate<T>(_allocator,  new_mem_size);
+        T *new_mem = counting_mem_allocator::allocate<T>(_allocator, new_mem_size);
         Container res = Container(new_sizes, new_mem);
         std::insert_iterator<Container> insert_it(res, res.begin());
         for (int i = 0; i < new_sizes.front(); i++) {
