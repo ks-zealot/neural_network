@@ -432,13 +432,14 @@ public:
     narray<T> transpose(int axis1 = 0, int axis2 = 1);
 
     T *at(std::vector<int> coord) const;
+  void dump(T* dump) const;
 
     void add_dim();
 
 protected:
 
 private:
-    T *mem = nullptr;//todo лучше все таки переделть под вектор
+    T *mem = nullptr;
     std::allocator<T> allocator;
     std::vector<int> sizes;
     std::vector<int> stride_info;
@@ -449,6 +450,10 @@ public:
 
     inline std::vector<int> get_sizes() const {
         return sizes;
+    }
+
+    inline int get_mem_size() const {
+        return mem_size;
     }
 
     iterator insert(iterator position, const value_type &val);
@@ -479,6 +484,8 @@ private:
         }
     }
 };
+
+
 
 template<typename T>
 void narray<T>::add_dim() {

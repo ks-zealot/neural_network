@@ -152,6 +152,15 @@ T *narray<T>::at(std::vector<int> coord) const {
     return mem + pos;
 }
 
+template<typename T>
+void narray<T>::dump(T *dump) const {
+    narray_coord coord(sizes);
+    for (int i = 0; i < mem_size; i++) {
+        dump[i] = *(at(coord.get_coord()));
+        coord++;
+    }
+}
+
 
 template<typename T>
 typename narray<T>::iterator narray<T>::insert(narray::iterator position, narray::value_type const &val) {

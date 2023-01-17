@@ -28,9 +28,11 @@ void print_matrix(narray<float> &array) {
 void Network::init() {
     num_layer = sizes.size();
     biases.push_back(narray<float>(std::vector({sizes[1], 1}), random_filler<float>::GetInstance()));
-    biases.emplace_back(narray<float>(std::vector({sizes[2], 1}), random_filler<float>::GetInstance()));
-    weights.emplace_back(narray<float>(std::vector({sizes[1], sizes[0]}), random_filler<float>::GetInstance()));
-    weights.emplace_back(narray<float>(std::vector({sizes[2], sizes[1]}), random_filler<float>::GetInstance()));
+    biases.push_back(narray<float>(std::vector({sizes[2], 1}), random_filler<float>::GetInstance()));
+    weights.push_back(narray<float>(std::vector({sizes[1], sizes[0]}), random_filler<float>::GetInstance()));
+    weights.push_back(narray<float>(std::vector({sizes[2], sizes[1]}), random_filler<float>::GetInstance()));
+
+
 }
 
 

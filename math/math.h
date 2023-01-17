@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <numeric>
+#include "mempool/counting_mem_allocator.h"
 
 #ifndef NEURONET_MATH_H
 #define NEURONET_MATH_H
@@ -118,6 +119,7 @@ n_array cost_derivative(n_array activations, n_array sgm_prime) {
 //dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])
 //сум продукт это умножение каждого элемента двух векторов и сложение результатот
 template<class ValT>
+//https://stackoverflow.com/questions/1303182/how-does-blas-get-such-extreme-performance
 void mmult(const ValT *A, int ADim1, int ADim2, const ValT *B, int BDim1, int BDim2, ValT *C) {
     if (ADim2 != BDim1)
         throw std::runtime_error("Error sizes off");
@@ -158,17 +160,26 @@ Container dot_product(const Container &a, const Container &b) {
                           new_mem_size *= i;
                       });
         T *new_mem = counting_mem_allocator::allocate<T>(_allocator, new_mem_size);
+        T *a_dump = counting_mem_allocator::allocate<T>(_allocator, a.get_mem_size());
+        T *b_dump = counting_mem_allocator::allocate<T>(_allocator, b.get_mem_size());
+        a.dump(a_dump);
+        b.dump(b_dump);
+        mmult(a_dump, a.get_sizes().front(), a.get_sizes().back(), b_dump, b.get_sizes().front(), b.get_sizes().back(),
+              new_mem);
         Container res = Container(new_sizes, new_mem);
-        for (int i = 0; i < new_sizes.front(); i++) {
-            for (int j = 0; j < new_sizes.back(); j++) {
-                Container row1 = a[i];
-                Container row2 = b[j];
-                for (auto &&[x, y]: _zip(row1, row2)) {
-                    res[i][j] += x * y;
-                }
 
-            }
-        }
+//        for (int i = 0; i < new_sizes.front(); i++) {
+//            for (int j = 0; j < new_sizes.back(); j++) {
+//                Container row1 = a[i];
+//                Container row2 = b[j];
+//                for (auto &&[x, y]: _zip(row1, row2)) {
+//                    res[i][j] += x * y;
+//                }
+//
+//            }
+//        }
+        counting_mem_allocator::deallocate(_allocator, a_dump, a.get_mem_size());
+        counting_mem_allocator::deallocate(_allocator, b_dump, b.get_mem_size());
         return res;
     }
     if (a.get_sizes().size() == 2 && b.get_sizes().size() == 1) {

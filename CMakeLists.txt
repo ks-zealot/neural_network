@@ -326,3 +326,17 @@ add_test(
         NAME narray_test_matmul
         COMMAND $<TARGET_FILE:narray_test_matmul>
 )
+
+
+
+add_executable(narray_test_dot_product_5 math/math.h   test/narray_test_dot_product_5.cpp)
+target_link_libraries(narray_test_dot_product_5 PRIVATE narray)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_dot_product_5
+        COMMAND $<TARGET_FILE:narray_test_dot_product_5>
+)

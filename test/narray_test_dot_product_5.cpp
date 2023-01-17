@@ -4,6 +4,7 @@
 
 
 #include <iostream>
+#include <cassert>
 #include "narray/narray.h"
 #include "math/math.h"
 
@@ -29,14 +30,11 @@ void print_matrix(narray<T> &array) {
 //0.826293 2.41854
 //-0.0413897 0.622618
 int main(int argc, const char *argv[]) {
-    std::vector<std::vector<float>> v1 = {{-0.513067, 0.544265,   0.683725},
-                                          {0.0883649, -0.0245399, 0.661257}};
-    std::vector<std::vector<float>> v2 = {{-0.74331, -1.00973},
-                                          {0.73697,  2.04419},
-                                          {0.064087, 1.15236}};
-    narray<float> obj1 = narray<float>(v1);
-    narray<float> obj2 = narray<float>(v2);
-    narray<float> dp = dot_product<narray<float>, float>(obj1, obj2.transpose());
-    print_matrix<float>(dp);
+
+    narray<float> obj1 = narray<float>({30, 784});
+    narray<float> obj2 = narray<float>({784, 1});
+    narray<float> dp = dot_product<narray<float>, float>(obj1, obj2);
+    assert(dp.get_sizes().front() == 30);
+    assert(dp.get_sizes().back() == 1);
     return 0;
 }

@@ -17,9 +17,9 @@ public:
     }
 
 
-    friend narray_coord &operator++(narray_coord &rhs) {
-        rhs.plus_coord(1);
-        return rhs;
+     narray_coord &operator++(int) {
+        plus_coord(1);
+        return *this;
     }
 
     narray_coord &operator+=(const int &rhs) {

@@ -22,7 +22,7 @@ class counting_mem_allocator {
 public:
 
     template<typename T>
-    static T *allocate(std::allocator<T> &allocator, size_t size) {
+    static T *allocate( std::allocator<T> &allocator, size_t size) {
         data.mem_allocated += size;
         data.mem_call_allocate++;
         if (current_label != "") {
@@ -48,14 +48,14 @@ public:
     }
 
     static void print_profiling() {
-        for (const std::tuple<std::string, counting_mem_data>& tpl : data_map) {
+        for (const std::tuple<std::string, counting_mem_data> &tpl: data_map) {
             std::cout << " Data for label " << std::get<0>(tpl) << std::endl;
             std::cout << " +++++++++++++++++++++++++++++++++++++ " << std::endl;
             counting_mem_data local_data = std::get<1>(tpl);
             std::cout << " mem_allocated " << local_data.mem_allocated << std::endl;
             std::cout << " mem_call_allocate " << local_data.mem_call_allocate << std::endl;
             std::cout << " mem_deallocated " << local_data.mem_deallocated << std::endl;
-            std::cout << " mem_call_deallocate " <<local_data.mem_call_deallocate << std::endl;
+            std::cout << " mem_call_deallocate " << local_data.mem_call_deallocate << std::endl;
         }
     }
 
@@ -74,7 +74,7 @@ public:
 
 private:
     static std::map<std::string, counting_mem_data> data_map;
-    static std::string current_label  ;
+    static std::string current_label;
 };
 
 #endif //NEURONET_COUNTING_MEM_ALLOCATOR_H
