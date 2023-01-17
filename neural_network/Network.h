@@ -59,7 +59,7 @@ public:
 //    test_results = [(np.argmax(self.feedforward(x)), y)
 //    for (x, y) in test_data]
 //    return sum(int(x == y) for (x, y) in test_results)
-    int evaluate(   narray<float> & container);
+    int evaluate(   narray<float>&  container);
 
 private:
     narray<float> &feed_forward(narray<float>& a);

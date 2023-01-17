@@ -317,6 +317,7 @@ public:
         mem_size = rhs.mem_size;
         allocator = rhs.allocator;
         mem = rhs.mem;
+        mem_policy = rhs.mem_policy;
         stride_info = rhs.stride_info;
         rhs.mem = nullptr;
         rhs.mem_policy = new subnarray_policy<T>();

@@ -102,10 +102,10 @@ training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y
         delta = dot_product<narray<float>, float>(weights[weights.size() - l + 1].transpose(), delta) * sp;
 //        time_profiling::measure("calculate_delta");
         nabla_b[nabla_b.size() - l] = delta;
-        time_profiling::set_label("calculate_nabla_w");
+//        time_profiling::set_label("calculate_nabla_w");
         nabla_w[nabla_w.size() - l] = dot_product<narray<float>, float>(delta, activations[activations.size() - l -
                                                                                            1].transpose());
-        time_profiling::measure("calculate_nabla_w");
+//        time_profiling::measure("calculate_nabla_w");
     }
 //    time_profiling::measure("calculate_bp");
 //    print_matrix(nabla_w[0]);
@@ -127,9 +127,9 @@ void Network::update_mini_batch(mini_batch_view mini_batch, float eta) {
 //        info("+++++++++++++++++++++++++++++++++++++");
         narray<float> &x = std::get<0>(tpl);
         narray<float> &y = std::get<1>(tpl);
-        time_profiling::set_label("back_propagation");
+//        time_profiling::set_label("back_propagation");
         training_data_tuple back_prp_res = back_propagation(x, y);
-        time_profiling::measure("back_propagation");
+//        time_profiling::measure("back_propagation");
         std::vector<narray<float>> &delta_nabla_b = std::get<0>(back_prp_res);
         std::vector<narray<float>> &delta_nabla_w = std::get<1>(back_prp_res);
         int idx = 0;
@@ -161,7 +161,9 @@ void
 Network::SGD(training_data_container &training_data, training_data_container &test_data, int epochs,
              int mini_batch_size) {
     for (int epoch = 0; epoch < epochs; epoch++) {
+        time_profiling::set_label("epoch");
         std::random_shuffle(training_data.begin(), training_data.end());
+//        counting_mem_allocator::put_label("update_mini_batch");
         for (int k = 0; k < training_data.size() / mini_batch_size; k += mini_batch_size) {
             mini_batch_view mini_batch = mini_batch_view(training_data.begin() + (k * mini_batch_size),
                                                          training_data.begin() + ((k + 1) * mini_batch_size));
@@ -175,17 +177,29 @@ Network::SGD(training_data_container &training_data, training_data_container &te
 //            print_matrix(weights[0]);
 //            print(t);
         }
+//        counting_mem_allocator::remove_label("update_mini_batch");
+        time_profiling::measure("epoch");
+
+//        counting_mem_allocator::put_label("evaluate");
         unsigned count = 0;
-        for (std::tuple<narray<float>, narray<float>> &tdc: test_data) {
-            if (evaluate(std::get<0>(tdc)) == max_arg(std::get<1>(tdc))) {
+        mini_batch_view mini_batch = mini_batch_view(test_data.begin() ,
+                                                     test_data.end() );
+        time_profiling::set_label("validation");
+        for (std::tuple<narray<float>, narray<float>> &tdc: mini_batch) {
+            narray<float>& a =std::get<0>(tdc);
+            narray<float>& b =std::get<0>(tdc);
+            if (evaluate(a) == max_arg(b)) {
                 count++;
             }
+
         }
-        if (count > 0) {
+        if (test_data.size() > 0) {
             info("Epoch {}: {} / {}", epoch, epochs, (float) count / (float) test_data.size() * 100.f);
         } else {
             info("{} epoch from {} epochs", epoch, epochs);
         }
+//        counting_mem_allocator::remove_label("evaluate");
+        time_profiling::measure("validation");
     }
 }
 
@@ -229,7 +243,8 @@ Network::train(unsigned char *images, unsigned char *labels, unsigned image_size
 
 }
 
-int Network::evaluate(narray<float> &image) {
-    return max_arg<narray<float>>(feed_forward(image));
+int Network::evaluate(narray<float>& image) {
+    narray<float> copy = image;
+    return max_arg<narray<float>>(feed_forward(copy));
 }
 

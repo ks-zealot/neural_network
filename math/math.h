@@ -117,7 +117,6 @@ n_array cost_derivative(n_array activations, n_array sgm_prime) {
 //        sum product over the last axis of `a` and the second-to-last axis of `b`::
 //
 //dot(a, b)[i,j,k,m] = sum(a[i,j,:] * b[k,:,m])
-//сум продукт это умножение каждого элемента двух векторов и сложение результатот
 template<class ValT>
 //https://stackoverflow.com/questions/1303182/how-does-blas-get-such-extreme-performance
 void mmult(const ValT *A, int ADim1, int ADim2, const ValT *B, int BDim1, int BDim2, ValT *C) {
@@ -131,6 +130,10 @@ void mmult(const ValT *A, int ADim1, int ADim2, const ValT *B, int BDim1, int BD
             for (cr1 = 0; cr1 < ADim1; ++cr1)
                 C[cc2 * ADim2 + cr1] += A[cc1 * ADim1 + cr1] * B[cc2 * BDim1 + cc1];
 }//todo этот алгоритм быстрее в миллиард раз примерно. но блас все равно надо прикрутить
+
+
+
+
 template<typename Container, typename T>
 Container dot_product(const Container &a, const Container &b) {
     if (a.get_sizes().empty() && b.get_sizes().empty()) {

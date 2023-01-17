@@ -57,6 +57,11 @@ public:
             std::cout << " mem_deallocated " << local_data.mem_deallocated << std::endl;
             std::cout << " mem_call_deallocate " << local_data.mem_call_deallocate << std::endl;
         }
+        std::cout << " +++++++++++++++++++++++++++++++++++++ " << std::endl;
+        std::cout << " mem_allocated " << data.mem_allocated << std::endl;
+        std::cout << " mem_call_allocate " << data.mem_call_allocate << std::endl;
+        std::cout << " mem_deallocated " << data.mem_deallocated << std::endl;
+        std::cout << " mem_call_deallocate " << data.mem_call_deallocate << std::endl;
     }
 
     static void put_label(std::string label) {
