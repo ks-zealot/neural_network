@@ -210,7 +210,8 @@ public:
         }
 
         reference operator*() {
-            return *narray->at(coord.get_coord());
+            T &res = *narray->at(coord.get_coord());
+            return res;
         }
 
         pointer operator->() { return &**this; }
@@ -433,7 +434,8 @@ public:
     narray<T> transpose(int axis1 = 0, int axis2 = 1);
 
     T *at(std::vector<int> coord) const;
-  void dump(T* dump) const;
+
+    void dump(T *dump) const;
 
     void add_dim();
 
@@ -487,11 +489,10 @@ private:
 };
 
 
-
 template<typename T>
 void narray<T>::add_dim() {
     sizes.push_back(1);
-    stride_info.push_back(0);
+    stride_info.insert(stride_info.begin(), 0);
 }
 
 
