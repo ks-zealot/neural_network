@@ -14,9 +14,9 @@
 #include "profiling/time_profiling.h"
 
 void print_matrix(narray<float> &array) {
-    for (int i = 0; i < array.get_sizes().front(); i++) {//todo хардкод
-        for (int j = 0; j < array.get_sizes().back(); j++) {
-            float t = *(array.at({i, j}));
+    for (int i = 0; i < 28; i++) {//todo хардкод
+        for (int j = 0; j < 28; j++) {
+            float t = *(array.at({0, j + (i * 28) }));
             std::cout << " " << t;
         }
         std::cout << std::endl;
@@ -134,6 +134,8 @@ Network::SGD(training_data_container &training_data, training_data_container &te
             mini_batch_view mini_batch = mini_batch_view(training_data.begin() + k,
                                                          training_data.begin() + k + mini_batch_size);
             update_mini_batch(mini_batch, eta);
+            narray<float> t = weights[0][0];
+            print(t);
         }
 
         unsigned count = 0;

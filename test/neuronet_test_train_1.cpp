@@ -7,6 +7,7 @@
 #include <thread>
 #include "neural_network/Network.h"
 #include "utils.h"
+#include "profiling/time_profiling.h"
 
 int main(int argc, const char *argv[]) {
     initscr();
@@ -20,19 +21,21 @@ int main(int argc, const char *argv[]) {
     MNISTReader reader("", "");
     Network network({28 * 28, 30, 10}, reader);
     network.init();
-    unsigned char *img = new unsigned char[28 * 28 * 600];
-    unsigned char *labels = new unsigned char[600];;
+    unsigned char *img = new unsigned char[28 * 28 * 6000];
+    unsigned char *labels = new unsigned char[6000];;
     std::random_device r;
     std::default_random_engine generator(r());
     std::uniform_int_distribution<char> distribution(0, 255);
     std::uniform_int_distribution<char> distribution1(0, 9);
-    for (int i = 0; i < 28 * 28 * 600; i++) {
+    for (int i = 0; i < 28 * 28 * 6000; i++) {
         img[i] = distribution(generator);
     }
-    for (int i = 0; i < 600; i++) {
+    for (int i = 0; i < 6000; i++) {
         labels[i] = distribution1(generator);
     }
-    network.train(img, labels, 28 * 28, 400, 200, 1, 10);
+    time_profiling::set_label("train");
+    network.train(img, labels, 28 * 28, 4000, 2000, 1, 10);//  170.805764629
+    time_profiling::measure("train");
     delete [] img;
     delete[] labels;
     endwin();

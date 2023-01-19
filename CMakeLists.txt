@@ -18,6 +18,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(CURL REQUIRED)
 find_package(Curses REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(BLAS REQUIRED)
 find_package(spdlog REQUIRED)
 
 # Dependencies
@@ -28,7 +29,7 @@ find_package(spdlog REQUIRED)
 #include_directories(${Boost_INCLUDE_DIRS})
 
 
-include_directories(${PROJECT_SOURCE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${CURSES_INCLUDE_DIRS} ${LibArchive_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR} ${ZLIB_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS} ${CURSES_INCLUDE_DIRS} ${LibArchive_INCLUDE_DIRS} ${BLAS_INCLUDE_DIR})
 set(CURSES_LIBRARIES "/usr/lib/x86_64-linux-gnu/libncursesw.so;/usr/lib/x86_64-linux-gnu/libformw.so")
 
 add_executable(Neuronet
@@ -61,12 +62,13 @@ add_executable(Neuronet
         #  sources/source.cpp
         #  sources/mnist/MNISTsource.cpp
         )
-target_link_libraries(${PROJECT_NAME} spdlog::spdlog_header_only ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CURSES_LIBRARIES} ${LibArchive_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} spdlog::spdlog_header_only ${ZLIB_LIBRARIES} ${CURL_LIBRARIES} ${CURSES_LIBRARIES} ${LibArchive_LIBRARIES} ${BLAS_LIBRARIES})
 
 #add_executable(test_exec test/main_test.cpp narray/narray.cpp)
 # example library
 add_library(narray profiling/time_profiling.h profiling/time_profiling.cpp
-        mempool/counting_mem_allocator.h mempool/counting_mem_allocator.cpp utils/narray_util.cpp narray/narray_coord.cpp narray/narray.cpp)
+        mempool/counting_mem_allocator.h mempool/counting_mem_allocator.cpp utils/narray_util.cpp narray/narray_coord.cpp narray/narray.cpp
+        )
 
 
 # testing binary
@@ -292,7 +294,7 @@ add_test(
 )
 
 add_executable(neuronet_test_train_1 global.cpp utils.cpp dataset_readers/MNISTReader.cpp neural_network/Network.cpp test/neuronet_test_train_1.cpp)
-target_link_libraries(neuronet_test_train_1 PRIVATE narray spdlog::spdlog_header_only ${CURSES_LIBRARIES} )
+target_link_libraries(neuronet_test_train_1 PRIVATE narray spdlog::spdlog_header_only ${CURSES_LIBRARIES} ${BLAS_LIBRARIES})
 
 # enable testing functionality
 enable_testing()
@@ -317,7 +319,7 @@ add_test(
 
 
 add_executable(narray_test_matmul math/math.h global.cpp utils/zip_iterator.h utils/zipper.h test/narray_test_matmul.cpp )
-target_link_libraries(narray_test_matmul PRIVATE narray spdlog::spdlog_header_only)
+target_link_libraries(narray_test_matmul PRIVATE narray spdlog::spdlog_header_only  ${BLAS_LIBRARIES})
 # enable testing functionality
 enable_testing()
 

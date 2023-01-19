@@ -53,11 +53,6 @@ void print_weight(unsigned int Width, unsigned int Height, float *weight) {
 
 void print_pixel(unsigned int pos, unsigned int x, unsigned int y) {
     const wchar_t *block = blocks[pos];
-    const wchar_t *block1 = blocks[1];
-    const wchar_t *block2 = blocks[2];
-    const wchar_t *block3 = blocks[3];
-    const wchar_t *block4 = blocks[4];
-    const wchar_t *block5 = blocks[5];
     unsigned int cp = (pos == 0) + 1;
     attron(COLOR_PAIR(cp));
     for (unsigned int k = 0; k < BLOCK_SIZE; k++) {

@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <numeric>
+#include <cblas.h>
 #include "mempool/counting_mem_allocator.h"
 
 #ifndef NEURONET_MATH_H
@@ -169,6 +170,33 @@ Container dot_product(const Container &a, const Container &b) {
         b.dump(b_dump);
         mmult(a_dump, a.get_sizes().front(), a.get_sizes().back(), b_dump, b.get_sizes().front(), b.get_sizes().back(),
               new_mem);
+        /**
+           * CblasColMajor - констата
+           * CblasNoTrans - мы уже транспонировали матрицу
+           *  следующие три числа размероность матриц
+           *  константа, равна 1
+           *  ссылка на первый массив
+           *  длина первого измерения первого массива
+           *  ссыла на второй массив
+           *  длина первого измерения второго массива
+           *  константа, ноль
+           *  ссылка на результирующий массив
+           *  длина первого измерения третьего массива
+           */
+//        cblas_sgemm(CblasColMajor,
+//                    CblasNoTrans,
+//                    CblasNoTrans,
+//                    a.get_sizes().front(),
+//                    b.get_sizes().back(),
+//                    a.get_sizes().back(),
+//                    1.0,
+//                    a_dump,
+//                    a.get_sizes().front(),
+//                    b_dump,
+//                    a.get_sizes().back(),
+//                    0.0,
+//                    new_mem,
+//                    a.get_sizes().front());
         Container res = Container(new_sizes, new_mem);
 
 //        for (int i = 0; i < new_sizes.front(); i++) {
