@@ -7,7 +7,7 @@
 
 #include <memory>
 #include <cstdio>
-#include <map>
+#include <unordered_map>
 #include <iostream>
 
 class counting_mem_data {
@@ -18,11 +18,36 @@ public:
     unsigned long mem_call_deallocate = 0l;
 };
 
+template<class T>
 class counting_mem_allocator {
+private:
+    static T *__allocate(std::size_t size) {
+        ptr_map[size]++;
+        int ptr = ptr_map[size];
+        if (ptr > stat_map[size]) {
+            free_mem();
+            throw std::runtime_error("out of memory");
+        }
+        T *t = mem_map[size];
+        return t + (ptr * size);
+    }
+
+    static void __deallocate(size_t size) {
+        ptr_map[size]--;
+    }
+
 public:
 
-    template<typename T>
-    static T *allocate( std::allocator<T> &allocator, size_t size) {
+    static void create_mempool(std::size_t size, int count) {
+        std::allocator<T> allocator;
+        stat_map[size] = count;
+        ptr_map[size] = 0;
+        T *t = allocator.allocate(size * count);
+        std::fill_n(t, count, 0);
+        mem_map[size] = allocator.allocate(size * count);
+    }
+
+    static T *allocate(std::allocator<T> &allocator, size_t size) {
         data.mem_allocated += size;
         data.mem_call_allocate++;
         if (current_label != "") {
@@ -31,10 +56,13 @@ public:
             local_data.mem_call_allocate++;
             data_map[current_label] = local_data;
         }
-        return allocator.allocate(size);
+        if (mem_map.empty()) {
+            return allocator.allocate(size);
+        } else {
+            return __allocate(size);
+        }
     }
 
-    template<typename T>
     static void deallocate(std::allocator<T> &allocator, T *mem, size_t size) {
         data.mem_deallocated += size;
         data.mem_call_deallocate++;
@@ -44,7 +72,11 @@ public:
             local_data.mem_call_deallocate++;
             data_map[current_label] = local_data;
         }
-        allocator.deallocate(mem, size);
+        if (mem_map.empty()) {
+            allocator.deallocate(mem, size);
+        } else {
+            __deallocate(size);
+        }
     }
 
     static void print_profiling() {
@@ -76,9 +108,24 @@ public:
 
     static counting_mem_data data;
 
+    ~counting_mem_allocator() {
+        free_mem();
+    }
+
+    static void free_mem() {
+        std::allocator<T> allocator;
+        for (const std::tuple<std::size_t, T *> &tpl: mem_map) {
+            std::size_t size = std::get<0>(tpl);
+            int count = stat_map[size];
+            allocator.deallocate(std::get<1>(tpl), size * count);
+        }
+    }
 
 private:
-    static std::map<std::string, counting_mem_data> data_map;
+    static std::unordered_map<std::string, counting_mem_data> data_map;
+    static std::unordered_map<std::size_t, T *> mem_map;
+    static std::unordered_map<std::size_t, int> stat_map;
+    static std::unordered_map<std::size_t, int> ptr_map;
     static std::string current_label;
 };
 

@@ -7,6 +7,7 @@
 #include <vector>
 #include <numeric>
 #include <cblas.h>
+#import "profiling/time_profiling.h"
 #include "mempool/counting_mem_allocator.h"
 
 #ifndef NEURONET_MATH_H
@@ -86,9 +87,10 @@ std::vector<T> mul(std::vector<T> vector1, std::vector<T> vector2) {
 
 template<typename Container>
 int max_arg(const Container &c) {
+//    return  cblas_isamax(c.get_mem_size(), c.get_mem(), 0);
     if (c.begin() == c.end())
         throw std::invalid_argument("empty container is not allowed.");
-    return (int) (std::distance(c.begin(), std::max_element(c.begin(), c.end())));
+    return (int) std::max_element(c.begin(), c.end());
 }
 
 template<typename n_array>
@@ -145,7 +147,7 @@ Container dot_product(const Container &a, const Container &b) {
     if (a.get_sizes().size() == 1 && b.get_sizes().size() == 1) {
 
         std::allocator<T> _allocator;
-        T *new_mem = counting_mem_allocator::allocate<T>(_allocator, 1);
+        T *new_mem = counting_mem_allocator<T>::allocate(_allocator, 1);
         *new_mem = T(0);
         Container res = Container(std::vector<int>(), new_mem);
         for (auto &&[x, y]: _zip(a, b)) {
@@ -163,16 +165,14 @@ Container dot_product(const Container &a, const Container &b) {
                       [&new_mem_size](int i) mutable {
                           new_mem_size *= i;
                       });
-        T *new_mem = counting_mem_allocator::allocate<T>(_allocator, new_mem_size);
-        T *a_dump = counting_mem_allocator::allocate<T>(_allocator, a.get_mem_size());
-        T *b_dump = counting_mem_allocator::allocate<T>(_allocator, b.get_mem_size());
-        a.dump(a_dump);
-        b.dump(b_dump);
-        mmult(a_dump, a.get_sizes().front(), a.get_sizes().back(), b_dump, b.get_sizes().front(), b.get_sizes().back(),
-              new_mem);
+        T *new_mem = counting_mem_allocator<T>::allocate (_allocator, new_mem_size);
+//        a.dump(a_dump);
+//        b.dump(b_dump);
+//        mmult(a_dump, a.get_sizes().front(), a.get_sizes().back(), b_dump, b.get_sizes().front(), b.get_sizes().back(),
+//              new_mem);
         /**
            * CblasColMajor - констата
-           * CblasNoTrans - мы уже транспонировали матрицу
+           * CblasTrans -
            *  следующие три числа размероность матриц
            *  константа, равна 1
            *  ссылка на первый массив
@@ -183,20 +183,20 @@ Container dot_product(const Container &a, const Container &b) {
            *  ссылка на результирующий массив
            *  длина первого измерения третьего массива
            */
-//        cblas_sgemm(CblasColMajor,
-//                    CblasNoTrans,
-//                    CblasNoTrans,
-//                    a.get_sizes().front(),
-//                    b.get_sizes().back(),
-//                    a.get_sizes().back(),
-//                    1.0,
-//                    a_dump,
-//                    a.get_sizes().front(),
-//                    b_dump,
-//                    a.get_sizes().back(),
-//                    0.0,
-//                    new_mem,
-//                    a.get_sizes().front());
+        cblas_sgemm(CblasColMajor,// в десять раз быстрее!!!
+                    a.is_transposed() ? CblasTrans : CblasNoTrans,
+                    b.is_transposed() ? CblasTrans : CblasNoTrans,
+                    a.get_sizes().front(),
+                    b.get_sizes().back(),
+                    a.get_sizes().back(),
+                    1.0,
+                    a.at({0, 0}),
+                    a.is_transposed() ? a.get_sizes().back() : a.get_sizes().front(),
+                    b.at({0, 0}),//todo сделать нормальный геттер
+                    b.is_transposed() ? b.get_sizes().back() : a.get_sizes().back(),
+                    0.0,
+                    new_mem,
+                    a.get_sizes().front());
         Container res = Container(new_sizes, new_mem);
 
 //        for (int i = 0; i < new_sizes.front(); i++) {
@@ -209,8 +209,6 @@ Container dot_product(const Container &a, const Container &b) {
 //
 //            }
 //        }
-        counting_mem_allocator::deallocate(_allocator, a_dump, a.get_mem_size());
-        counting_mem_allocator::deallocate(_allocator, b_dump, b.get_mem_size());
         return res;
     }
     if (a.get_sizes().size() == 2 && b.get_sizes().size() == 1) {
@@ -221,7 +219,7 @@ Container dot_product(const Container &a, const Container &b) {
                       [&new_mem_size](int i) mutable {
                           new_mem_size *= i;
                       });
-        T *new_mem = counting_mem_allocator::allocate<T>(_allocator, new_mem_size);
+        T *new_mem = counting_mem_allocator<T>::allocate(_allocator, new_mem_size);
         Container res = Container(new_sizes, new_mem);
         std::insert_iterator<Container> insert_it(res, res.begin());
         for (int i = 0; i < new_sizes.front(); i++) {

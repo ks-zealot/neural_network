@@ -133,7 +133,7 @@ add_test(
         COMMAND $<TARGET_FILE:narray_test_bracket_operator>
 )
 
-add_executable(narray_test_dot_product math/math.h   test/narray_test_dot_product.cpp)
+add_executable(narray_test_dot_product math/math.h test/narray_test_dot_product.cpp)
 target_link_libraries(narray_test_dot_product PRIVATE narray)
 
 # enable testing functionality
@@ -181,7 +181,7 @@ add_test(
         COMMAND $<TARGET_FILE:narray_test_fill_predefined_values_1>
 )
 
-add_executable(narray_zip_test utils/zip_iterator.h utils/zipper.h test/narray_zip_test.cpp )
+add_executable(narray_zip_test utils/zip_iterator.h utils/zipper.h test/narray_zip_test.cpp)
 target_link_libraries(narray_zip_test PRIVATE narray)
 
 # enable testing functionality
@@ -194,7 +194,7 @@ add_test(
 )
 
 
-add_executable(narray_transform_test math/math.h  test/narray_transform_function.cpp )
+add_executable(narray_transform_test math/math.h test/narray_transform_function.cpp)
 target_link_libraries(narray_transform_test PRIVATE narray)
 
 # enable testing functionality
@@ -207,7 +207,7 @@ add_test(
 )
 
 
-add_executable(char_sigmoid_test math/math.h  test/char_sigmoid_test.cpp )
+add_executable(char_sigmoid_test math/math.h test/char_sigmoid_test.cpp)
 target_link_libraries(char_sigmoid_test PRIVATE narray)
 
 # enable testing functionality
@@ -232,7 +232,7 @@ add_test(
         COMMAND $<TARGET_FILE:copy_constructor_test>
 )
 
-add_executable(narray_test_dot_product_1 math/math.h   test/narray_test_dot_product_1.cpp)
+add_executable(narray_test_dot_product_1 math/math.h test/narray_test_dot_product_1.cpp)
 target_link_libraries(narray_test_dot_product_1 PRIVATE narray)
 
 # enable testing functionality
@@ -244,7 +244,7 @@ add_test(
         COMMAND $<TARGET_FILE:narray_test_dot_product_1>
 )
 
-add_executable(narray_test_dot_product_2 math/math.h   test/narray_test_dot_product_2.cpp)
+add_executable(narray_test_dot_product_2 math/math.h test/narray_test_dot_product_2.cpp)
 target_link_libraries(narray_test_dot_product_2 PRIVATE narray)
 
 # enable testing functionality
@@ -256,7 +256,7 @@ add_test(
         COMMAND $<TARGET_FILE:narray_test_dot_product_2>
 )
 
-add_executable(narray_test_dot_product_3 math/math.h   test/narray_test_dot_product_3.cpp)
+add_executable(narray_test_dot_product_3 math/math.h test/narray_test_dot_product_3.cpp)
 target_link_libraries(narray_test_dot_product_3 PRIVATE narray)
 
 # enable testing functionality
@@ -269,7 +269,7 @@ add_test(
 )
 
 
-add_executable(narray_test_dot_product_4 math/math.h   test/narray_test_dot_product_4.cpp)
+add_executable(narray_test_dot_product_4 math/math.h test/narray_test_dot_product_4.cpp)
 target_link_libraries(narray_test_dot_product_4 PRIVATE narray)
 
 # enable testing functionality
@@ -282,7 +282,7 @@ add_test(
 )
 
 add_executable(neuronet_test_train global.cpp utils.cpp dataset_readers/MNISTReader.cpp neural_network/Network.cpp test/neuronet_test_train.cpp)
-target_link_libraries(neuronet_test_train PRIVATE narray spdlog::spdlog_header_only ${CURSES_LIBRARIES} )
+target_link_libraries(neuronet_test_train PRIVATE narray spdlog::spdlog_header_only ${CURSES_LIBRARIES})
 
 # enable testing functionality
 enable_testing()
@@ -306,7 +306,7 @@ add_test(
 )
 
 
-add_executable(narray_test_zip_different_sizes utils/zip_iterator.h utils/zipper.h test/narray_test_zip_different_sizes.cpp )
+add_executable(narray_test_zip_different_sizes utils/zip_iterator.h utils/zipper.h test/narray_test_zip_different_sizes.cpp)
 target_link_libraries(narray_test_zip_different_sizes PRIVATE narray)
 # enable testing functionality
 enable_testing()
@@ -318,8 +318,8 @@ add_test(
 )
 
 
-add_executable(narray_test_matmul math/math.h global.cpp utils/zip_iterator.h utils/zipper.h test/narray_test_matmul.cpp )
-target_link_libraries(narray_test_matmul PRIVATE narray spdlog::spdlog_header_only  ${BLAS_LIBRARIES})
+add_executable(narray_test_matmul math/math.h global.cpp utils/zip_iterator.h utils/zipper.h test/narray_test_matmul.cpp)
+target_link_libraries(narray_test_matmul PRIVATE narray spdlog::spdlog_header_only ${BLAS_LIBRARIES})
 # enable testing functionality
 enable_testing()
 
@@ -329,9 +329,29 @@ add_test(
         COMMAND $<TARGET_FILE:narray_test_matmul>
 )
 
+add_executable(narray_test_matsum math/math.h global.cpp utils/zip_iterator.h utils/zipper.h test/narray_test_matsum.cpp)
+target_link_libraries(narray_test_matsum PRIVATE narray spdlog::spdlog_header_only ${BLAS_LIBRARIES})
+# enable testing functionality
+enable_testing()
 
+# define tests
+add_test(
+        NAME narray_test_matsum
+        COMMAND $<TARGET_FILE:narray_test_matsum>
+)
 
-add_executable(narray_test_dot_product_5 math/math.h   test/narray_test_dot_product_5.cpp)
+add_executable(narray_test_maxarg math/math.h global.cpp utils/zip_iterator.h utils/zipper.h test/narray_test_maxarg.cpp)
+target_link_libraries(narray_test_maxarg PRIVATE narray spdlog::spdlog_header_only ${BLAS_LIBRARIES})
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_maxarg
+        COMMAND $<TARGET_FILE:narray_test_matsum>
+)
+
+add_executable(narray_test_dot_product_5 math/math.h test/narray_test_dot_product_5.cpp)
 target_link_libraries(narray_test_dot_product_5 PRIVATE narray)
 
 # enable testing functionality
@@ -341,4 +361,16 @@ enable_testing()
 add_test(
         NAME narray_test_dot_product_5
         COMMAND $<TARGET_FILE:narray_test_dot_product_5>
+)
+
+add_executable(narray_test_mempool  global.cpp  test/narray_test_mempool.cpp)
+target_link_libraries(narray_test_mempool PRIVATE narray spdlog::spdlog_header_only)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_mempool
+        COMMAND $<TARGET_FILE:narray_test_mempool>
 )

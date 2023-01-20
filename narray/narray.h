@@ -27,7 +27,7 @@ public:
 template<typename T>
 class standart_policy : public memory_policy<T> {//todo возращать указатель на статическую перменную
     virtual void free(std::allocator<T> alloc, T *mem, std::size_t size) {
-        counting_mem_allocator::deallocate<T>(alloc, mem, size);
+        counting_mem_allocator<T>::deallocate(alloc, mem, size);
     }
 };
 
@@ -108,7 +108,7 @@ public:
                       [this](int i) mutable {
                           mem_size *= i;
                       });
-        mem = counting_mem_allocator::allocate<T>(allocator, mem_size);
+        mem = counting_mem_allocator<T>::allocate(allocator, mem_size);
         for (int i = 0; i < mem_size; i++) {
             mem[i] = target[i];
         }
@@ -177,6 +177,7 @@ public:
             return cp;
         }
 
+        operator int() const { return m_idx; }
 
         friend bool operator==(iterator lhs, iterator rhs) { return lhs.m_idx == rhs.m_idx; }
 
@@ -233,6 +234,8 @@ public:
             ++lhs;
             return cp;
         }
+
+        operator int() const { return m_idx; }
 
         friend bool operator==(const_iterator lhs, const_iterator rhs) { return lhs.m_idx == rhs.m_idx; }
 
@@ -294,16 +297,17 @@ public:
 
     narray<T> &operator=(const narray<T> &rhs) {
         if (mem) {//в случае если присвоение происходит уже инициализированному наррай происходит утечка из васиной уздечки ^W^W^^W^W^W^W^W^ памяти
-            counting_mem_allocator::deallocate(allocator, mem, mem_size);
+            counting_mem_allocator<T>::deallocate(allocator, mem, mem_size);
             mem = nullptr;
         }
         sizes = rhs.sizes;
         mem_size = rhs.mem_size;
         stride_info = rhs.stride_info;
         std::allocator<T> alloc;
-        mem = counting_mem_allocator::allocate<T>(alloc, rhs.mem_size);
+        mem = counting_mem_allocator<T>::allocate(alloc, rhs.mem_size);
         mem_policy = new standart_policy<T>();
         allocator = alloc;
+        transposed = rhs.transposed;
         memcpy(mem, rhs.mem, sizeof(T) * rhs.mem_size);
         return *this;
     }
@@ -311,7 +315,7 @@ public:
 
     narray<T> &operator=(narray<T> &&rhs) {
         if (mem) {
-            counting_mem_allocator::deallocate(allocator, mem, mem_size);
+            counting_mem_allocator<T>::deallocate(allocator, mem, mem_size);
             mem = nullptr;
         }
         sizes = rhs.sizes;
@@ -320,6 +324,7 @@ public:
         mem = rhs.mem;
         mem_policy = rhs.mem_policy;
         stride_info = rhs.stride_info;
+        transposed = rhs.transposed;
         rhs.mem = nullptr;
         rhs.mem_policy = new subnarray_policy<T>();
         return *this;
@@ -330,16 +335,18 @@ public:
             throw_matrix_noneq_error(sizes, rhs.sizes);
         }
         for (int i = 0; i < rhs.mem_size; i++) {
-            T t = *(mem + i) + *(rhs.mem + i);
-            *(mem + i) = t;
+            mem[i] = mem[i] + rhs.mem[i];
+//            T t = *(mem + i) + *(rhs.mem + i);
+//            *(mem + i) = t;
         }
         return *this;
     }
 
     narray<T> &operator+=(T const &rhs) {
         for (int i = 0; i < mem_size; i++) {
-            T t = *(mem + i) + rhs;
-            *(mem + i) = t;
+            mem[i] = mem[i] + rhs;
+//            T t = *(mem + i) + rhs;
+//            *(mem + i) = t;
         }
         return *this;
     }
@@ -349,7 +356,7 @@ public:
             return false;
         }
         for (int i = 0; i < mem_size; i++) {
-            if (*(mem + i) != *(rhs.mem + i)) {
+            if (mem[i] != rhs.mem[i]) {
                 return false;
             }
         }
@@ -366,8 +373,9 @@ public:
 
     narray<T> &operator*=(T const &rhs) {
         for (int i = 0; i < mem_size; i++) {
-            T t = *(mem + i) * rhs;
-            *(mem + i) = t;
+            mem[i] = mem[i] * rhs;
+//            T t = *(mem + i) * rhs;
+//            *(mem + i) = t;
         }
         return *this;
     }
@@ -398,8 +406,9 @@ public:
             throw_matrix_noneq_error(sizes, rhs.sizes);
         }
         for (int i = 0; i < mem_size; i++) {
-            T t = *(mem + i) + *(rhs.mem + i);
-            *(mem + i) = t;
+            mem[i] = mem[i] - rhs.mem[i];
+//            T t = *(mem + i) + *(rhs.mem + i);
+//            *(mem + i) = t;
         }
         return *this;
     }
@@ -414,8 +423,9 @@ public:
             throw_matrix_noneq_error(sizes, rhs.sizes);
         }
         for (int i = 0; i < mem_size; i++) {
-            T t = *(mem + i) * *(rhs.mem + i);
-            *(mem + i) = t;
+            mem[i] = mem[i] * rhs.mem[i];
+//            T t = *(mem + i) * *(rhs.mem + i);
+//            *(mem + i) = t;
         }
         return *this;
     }
@@ -448,8 +458,8 @@ private:
     std::vector<int> stride_info;
     int mem_size;
     memory_policy<T> *mem_policy;
+    bool transposed = false;
 public:
-    //Test purpose
 
     inline std::vector<int> get_sizes() const {
         return sizes;
@@ -457,6 +467,14 @@ public:
 
     inline int get_mem_size() const {
         return mem_size;
+    }
+
+    inline bool is_transposed() const {
+        return transposed;
+    }
+
+    inline T *get_mem() const {
+        return mem;
     }
 
     iterator insert(iterator position, const value_type &val);

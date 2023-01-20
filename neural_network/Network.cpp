@@ -63,7 +63,7 @@ training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y
     std::vector<narray<float>> zs;
     for (auto &&[b, w]: _zip(biases, weights)) {
 //        z = np.dot(w, activation)+b
-        narray<float> z = dot_product<narray<float>, float>(w, activation) + b;
+        narray<float> z = dot_product<narray<float>, float>(w, activation) + b;//0.021771895
         zs.push_back(z);
         activation = sigmoid<float, narray<float>>(z);
         activations.push_back(activation);
@@ -111,17 +111,16 @@ void Network::update_mini_batch(mini_batch_view mini_batch, float eta) {
             nabla_w[idx] = nw + dnw;
             idx++;
         }
-
-        idx = 0;
-        for (auto &&[w, nw]: _zip(weights, nabla_w)) {
-            weights[idx] = w - nw * (eta / mini_batch.size());
-            idx++;
-        }
-        idx = 0;
-        for (auto &&[b, nb]: _zip(biases, nabla_b)) {
-            biases[idx] = b - nb * (eta / mini_batch.size());
-            idx++;
-        }
+    }
+    int idx = 0;
+    for (auto &&[w, nw]: _zip(weights, nabla_w)) {
+        weights[idx] = w - nw * (eta / mini_batch.size());
+        idx++;
+    }
+    idx = 0;
+    for (auto &&[b, nb]: _zip(biases, nabla_b)) {
+        biases[idx] = b - nb * (eta / mini_batch.size());
+        idx++;
     }
 }
 
@@ -133,22 +132,21 @@ Network::SGD(training_data_container &training_data, training_data_container &te
         for (int k = 0; k < training_data.size(); k += mini_batch_size) {
             mini_batch_view mini_batch = mini_batch_view(training_data.begin() + k,
                                                          training_data.begin() + k + mini_batch_size);
-            update_mini_batch(mini_batch, eta);
-            narray<float> t = weights[0][0];
-            print(t);
-        }
 
+            update_mini_batch(mini_batch, eta);
+//            narray<float> t = weights[0][0];
+//            print(t);
+        }
+        time_profiling::set_label("validate");
         unsigned count = 0;
-        mini_batch_view mini_batch = mini_batch_view(test_data.begin() ,
-                                                     test_data.end() );
-        for (std::tuple<narray<float>, narray<float>> &tdc: mini_batch) {
+        for (std::tuple<narray<float>, narray<float>> &tdc: test_data) {
             narray<float>& a =std::get<0>(tdc);
             narray<float>& b =std::get<1>(tdc);
             if (evaluate(a) == max_arg(b)) {
                 count++;
             }
-
         }
+        time_profiling::measure("validate");
         if (test_data.size() > 0) {
             info("Epoch {}: {} / {}", epoch, epochs, (float) count / (float) test_data.size() * 100.f);
         } else {
@@ -193,7 +191,10 @@ Network::train(unsigned char *images, unsigned char *labels, unsigned image_size
         test_data[i] = std::make_tuple(_img, _label);
         vectorized[*(labels + i+ size)] = 0.f;
     }
+
+
     SGD(container, test_data, epochs, mini_batch_size);
+
 
 }
 
