@@ -21,26 +21,12 @@ int main(int argc, const char *argv[]) {
 //    counting_mem_allocator<float>::create_mempool(30, 100);// biases
 //    counting_mem_allocator<float>::create_mempool(10, 100000 + 100);// biases + labels
 //    counting_mem_allocator<float>::create_mempool(1, 100);//scalar
-    MNISTReader reader("", "");
-    Network network({28 * 28, 30, 10}, reader);
-    network.init();
-    unsigned char *img = new unsigned char[28 * 28 * 60000];
-    unsigned char *labels = new unsigned char[60000];;
-    std::random_device r;
-    std::default_random_engine generator(r());
-    std::uniform_int_distribution<char> distribution(0, 255);
-    std::uniform_int_distribution<char> distribution1(0, 9);
-    for (int i = 0; i < 28 * 28 * 60000; i++) {
-        img[i] = distribution(generator);
-    }
-    for (int i = 0; i < 60000; i++) {
-        labels[i] = distribution1(generator);
-    }
-    time_profiling::set_label("train");
-    network.train(img, labels, 28 * 28, 50000, 10000, 1, 10);
-    time_profiling::measure("train");
-    delete[] img;
-    delete[] labels;
+    MNISTReader reader("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
+    reader.prepare();
+    reader.read();
+    reader.train();
+    reader.close();
+
     endwin();
     return 0;
 }

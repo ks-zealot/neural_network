@@ -12,8 +12,8 @@
 
 class MNISTReader {
 public:
-    MNISTReader(std::string dataset_file_name, std::string labels_file_name) : dataset_file_name(dataset_file_name)
-    , labels_file_name(labels_file_name) {};
+    MNISTReader(std::string dataset_file_name, std::string labels_file_name) : dataset_file_name(dataset_file_name),
+                                                                               labels_file_name(labels_file_name) {};
 private:
     std::string dataset_file_name;
     std::string labels_file_name;
@@ -26,20 +26,21 @@ private:
     int number_of_rows;
     int number_of_cols;
 
-    char *mem;
-    std::vector<DatasetImage *> images;
-    char* labels;
-    void alloc_mem();
+    char *labels;
+    char *images;
+
+
 public:
     void read();
+
     void prepare();
+
     void close();
 
     void extractDataset();
 
     void extractLabels();
 
-    void showImages();
 
     void train();
 };

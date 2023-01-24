@@ -8,6 +8,7 @@
 
 #include "MNISTReader.h"
 #include "utils.h"
+#include "neural_network/Network.h"
 #include <iostream>
 #include <random>
 #include <thread>
@@ -16,7 +17,7 @@
 void MNISTReader::read() {
     extractDataset();
     extractLabels();
-    showImages();
+//    showImages();
 
 
     //initscr();
@@ -36,7 +37,7 @@ void MNISTReader::extractLabels() {
     assert(label_magic_number == 0x00000801);
     lbl_dataset.read(reinterpret_cast<char *>(&number_of_labels), sizeof(int));
     SwapEnd(number_of_labels);
-    labels = new char[number_of_labels];
+    labels = new   char[number_of_labels];
     lbl_dataset.read(labels, number_of_labels);
 }
 
@@ -51,18 +52,8 @@ void MNISTReader::extractDataset() {
     SwapEnd(number_of_images);
     SwapEnd(number_of_rows);
     SwapEnd(number_of_cols);
-    alloc_mem();
-
-    int image_size = number_of_cols * number_of_rows;
-    char *image = new char[image_size];
-
-    for (int i = 0; i < number_of_images; i++) {
-        fp_dataset.read(image, image_size);
-        memcpy(mem + (i * image_size), image, image_size);
-        images.push_back(new DatasetImage((char *) mem + (i * image_size), 0));
-    }
-    delete[] image;
-
+    images = new char[number_of_images * number_of_rows * number_of_cols];
+    fp_dataset.read(images, number_of_images * number_of_rows * number_of_cols);
 }
 
 void MNISTReader::prepare() {
@@ -74,32 +65,19 @@ void MNISTReader::prepare() {
 }
 
 void MNISTReader::close() {
-    free(mem);
     delete[] labels;
+    delete[] images;
     fp_dataset.close();
     lbl_dataset.close();
 }
 
-void MNISTReader::alloc_mem() {
-    mem = (char *) malloc(number_of_images * number_of_rows * number_of_cols * sizeof(char));
-}
 
-void MNISTReader::showImages() {
-    initscr();
-    std::random_device r;
-    std::default_random_engine generator(r());
-    std::uniform_int_distribution<int> distribution(0, number_of_images);
-    for (int i = 0; i < 60; i++) {
-        int dice_roll = distribution(generator);
-        print_image(number_of_cols, number_of_rows, (unsigned char *) images[dice_roll]->image);
-        mvaddstr(number_of_rows + 2, 0, std::string("This is ").append(std::to_string(labels[dice_roll])).c_str());
-        refresh();
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    endwin();
-}
+
 
 void MNISTReader::train() {
-
+    Network network({number_of_rows * number_of_cols, 30, 10}, *this);
+    network.init();
+    network.train((unsigned char*)images,(unsigned char*) labels, number_of_rows * number_of_cols,
+                  number_of_images - 10000, 10000, 30, 10);
 }
 

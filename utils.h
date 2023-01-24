@@ -19,6 +19,7 @@ void SwapEnd(T &var) {
     static_assert(std::is_standard_layout<T>::value && std::is_trivial<T>::value, "Type must be POD type for safety");
     std::array<char, sizeof(T)> varArray;
     std::memcpy(varArray.data(), &var, sizeof(T));
+
     for (int i = 0; i < static_cast<int>(sizeof(var) / 2); i++)
         std::swap(varArray[sizeof(var) - 1 - i], varArray[i]);
     std::memcpy(&var, varArray.data(), sizeof(T));

@@ -10,7 +10,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CMAKE_THREAD_LIBS_INIT "-lpthread")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}   -pthread")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast  ")
 set(CMAKE_HAVE_THREADS_LIBRARY 1)
 set(CMAKE_USE_WIN32_THREADS_INIT 0)
 set(CMAKE_USE_PTHREADS_INIT 1)
@@ -219,6 +220,30 @@ add_test(
         COMMAND $<TARGET_FILE:char_sigmoid_test>
 )
 
+add_executable(float_sigmoid_test math/math.h test/float_sigmoid_test.cpp)
+target_link_libraries(float_sigmoid_test PRIVATE narray)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME float_sigmoid_test
+        COMMAND $<TARGET_FILE:char_sigmoid_test>
+)
+
+
+add_executable(narray_weight_test math/math.h test/narray_weight_test.cpp)
+target_link_libraries(narray_weight_test PRIVATE narray)
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_weight_test
+        COMMAND $<TARGET_FILE:narray_weight_test>
+)
 
 add_executable(copy_constructor_test test/copy_constructor_test.cpp)
 target_link_libraries(copy_constructor_test PRIVATE narray)
@@ -233,7 +258,7 @@ add_test(
 )
 
 add_executable(narray_test_dot_product_1 math/math.h test/narray_test_dot_product_1.cpp)
-target_link_libraries(narray_test_dot_product_1 PRIVATE narray)
+target_link_libraries(narray_test_dot_product_1 PRIVATE narray  ${BLAS_LIBRARIES})
 
 # enable testing functionality
 enable_testing()
@@ -242,6 +267,19 @@ enable_testing()
 add_test(
         NAME narray_test_dot_product_1
         COMMAND $<TARGET_FILE:narray_test_dot_product_1>
+)
+
+
+add_executable(narray_test_blas math/math.h test/narray_test_blas.cpp)
+target_link_libraries(narray_test_blas PRIVATE narray  ${BLAS_LIBRARIES})
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_blas
+        COMMAND $<TARGET_FILE:narray_test_blas>
 )
 
 add_executable(narray_test_dot_product_2 math/math.h test/narray_test_dot_product_2.cpp)
@@ -305,6 +343,18 @@ add_test(
         COMMAND $<TARGET_FILE:neuronet_test_train_1>
 )
 
+add_executable(neuronet_test_train_2 global.cpp utils.cpp dataset_readers/MNISTReader.cpp neural_network/Network.cpp test/neuronet_test_train_2.cpp)
+target_link_libraries(neuronet_test_train_2 PRIVATE narray spdlog::spdlog_header_only ${CURSES_LIBRARIES} ${BLAS_LIBRARIES})
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME neuronet_test_train_2
+        COMMAND $<TARGET_FILE:neuronet_test_train_2>
+)
+
 
 add_executable(narray_test_zip_different_sizes utils/zip_iterator.h utils/zipper.h test/narray_test_zip_different_sizes.cpp)
 target_link_libraries(narray_test_zip_different_sizes PRIVATE narray)
@@ -363,7 +413,7 @@ add_test(
         COMMAND $<TARGET_FILE:narray_test_dot_product_5>
 )
 
-add_executable(narray_test_mempool  global.cpp  test/narray_test_mempool.cpp)
+add_executable(narray_test_mempool global.cpp test/narray_test_mempool.cpp)
 target_link_libraries(narray_test_mempool PRIVATE narray spdlog::spdlog_header_only)
 
 # enable testing functionality

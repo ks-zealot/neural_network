@@ -16,7 +16,7 @@
 void print_matrix(narray<float> &array) {
     for (int i = 0; i < 28; i++) {//todo хардкод
         for (int j = 0; j < 28; j++) {
-            float t = *(array.at({0, j + (i * 28) }));
+            float t = *(array.at({0, j + (i * 28)}));
             std::cout << " " << t;
         }
         std::cout << std::endl;
@@ -57,13 +57,13 @@ training_data_tuple Network::back_propagation(narray<float> &x, narray<float> &y
     for (narray<float> &w: weights) {
         nabla_w.push_back(narray<float>(w.get_sizes()));
     }
-    narray<float> activation = x;//copy
+    narray<float> activation = x;
     std::vector<narray<float>> activations;
     activations.push_back(activation);
     std::vector<narray<float>> zs;
     for (auto &&[b, w]: _zip(biases, weights)) {
 //        z = np.dot(w, activation)+b
-        narray<float> z = dot_product<narray<float>, float>(w, activation) + b;//0.021771895
+        narray<float> z = dot_product<narray<float>, float>(w, activation) + b;
         zs.push_back(z);
         activation = sigmoid<float, narray<float>>(z);
         activations.push_back(activation);
@@ -114,7 +114,7 @@ void Network::update_mini_batch(mini_batch_view mini_batch, float eta) {
     }
     int idx = 0;
     for (auto &&[w, nw]: _zip(weights, nabla_w)) {
-        weights[idx] = w - nw * (eta / mini_batch.size());
+        weights[idx] = w -  nw * (eta / mini_batch.size());
         idx++;
     }
     idx = 0;
@@ -137,18 +137,16 @@ Network::SGD(training_data_container &training_data, training_data_container &te
 //            narray<float> t = weights[0][0];
 //            print(t);
         }
-        time_profiling::set_label("validate");
         unsigned count = 0;
         for (std::tuple<narray<float>, narray<float>> &tdc: test_data) {
-            narray<float>& a =std::get<0>(tdc);
-            narray<float>& b =std::get<1>(tdc);
+            narray<float> &a = std::get<0>(tdc);
+            narray<float> &b = std::get<1>(tdc);
             if (evaluate(a) == max_arg(b)) {
                 count++;
             }
         }
-        time_profiling::measure("validate");
         if (test_data.size() > 0) {
-            info("Epoch {}: {} / {}", epoch, epochs, (float) count / (float) test_data.size() * 100.f);
+            info("Epoch {}: {} / {} % accuracy", epoch, epochs, (float) count / (float) test_data.size() * 100.f);
         } else {
             info("{} epoch from {} epochs", epoch, epochs);
         }
@@ -189,7 +187,7 @@ Network::train(unsigned char *images, unsigned char *labels, unsigned image_size
         narray<float> _label = narray<float>(vectorized);
         _label.add_dim();
         test_data[i] = std::make_tuple(_img, _label);
-        vectorized[*(labels + i+ size)] = 0.f;
+        vectorized[*(labels + i + size)] = 0.f;
     }
 
 

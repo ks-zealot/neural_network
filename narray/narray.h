@@ -392,13 +392,15 @@ public:
 
 
     friend narray<T> operator+(narray<T> &lhs, narray<T> const &rhs) {
-        lhs += rhs;
-        return lhs;
+        narray<T> copy = lhs;
+        copy += rhs;
+        return copy;
     }
 
     friend narray<T> operator+(narray<T> &&lhs, narray<T> const &rhs) {
-        lhs += rhs;
-        return lhs;
+        narray<T> copy = lhs;
+        copy += rhs;
+        return copy;
     }
 
     narray<T> &operator-=(narray<T> const &rhs) {

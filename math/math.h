@@ -59,14 +59,6 @@ void vectorize(Iterator1 &__input1, Iterator2 &__input2, int max) {
 }
 
 
-template<typename T>
-std::vector<T> cost_derivative(std::vector<T> output_activations, std::vector<T> y) {
-    std::vector<T> res;
-    res.reserve(output_activations.size());
-    std::transform(output_activations.begin(), output_activations.end(), y.begin(), res.begin(), std::minus<int>());
-    return res;
-}
-
 
 template<typename T, typename T1>
 std::vector<T> plus(std::vector<T> vector, T1 val) {
@@ -132,13 +124,11 @@ void mmult(const ValT *A, int ADim1, int ADim2, const ValT *B, int BDim1, int BD
         for (cc1 = 0; cc1 < ADim2; ++cc1)
             for (cr1 = 0; cr1 < ADim1; ++cr1)
                 C[cc2 * ADim2 + cr1] += A[cc1 * ADim1 + cr1] * B[cc2 * BDim1 + cc1];
-}//todo этот алгоритм быстрее в миллиард раз примерно. но блас все равно надо прикрутить
-
-
+}
 
 
 template<typename Container, typename T>
-Container dot_product(const Container &a, const Container &b) {
+Container dot_product(const Container& a, const Container& b) {
     if (a.get_sizes().empty() && b.get_sizes().empty()) {
         Container res = a;
         res *= b;
@@ -165,7 +155,7 @@ Container dot_product(const Container &a, const Container &b) {
                       [&new_mem_size](int i) mutable {
                           new_mem_size *= i;
                       });
-        T *new_mem = counting_mem_allocator<T>::allocate (_allocator, new_mem_size);
+        T *new_mem = counting_mem_allocator<T>::allocate(_allocator, new_mem_size);
 //        a.dump(a_dump);
 //        b.dump(b_dump);
 //        mmult(a_dump, a.get_sizes().front(), a.get_sizes().back(), b_dump, b.get_sizes().front(), b.get_sizes().back(),
@@ -183,20 +173,20 @@ Container dot_product(const Container &a, const Container &b) {
            *  ссылка на результирующий массив
            *  длина первого измерения третьего массива
            */
-        cblas_sgemm(CblasColMajor,// в десять раз быстрее!!!
+        cblas_sgemm(CblasRowMajor,
                     a.is_transposed() ? CblasTrans : CblasNoTrans,
                     b.is_transposed() ? CblasTrans : CblasNoTrans,
                     a.get_sizes().front(),
                     b.get_sizes().back(),
                     a.get_sizes().back(),
                     1.0,
-                    a.at({0, 0}),
-                    a.is_transposed() ? a.get_sizes().back() : a.get_sizes().front(),
-                    b.at({0, 0}),//todo сделать нормальный геттер
-                    b.is_transposed() ? b.get_sizes().back() : a.get_sizes().back(),
+                    a.get_mem(),
+                    a.is_transposed() ? a.get_sizes().front():   a.get_sizes().back(),
+                    b.get_mem(),
+                    b.is_transposed() ? b.get_sizes().front():   b.get_sizes().back(),
                     0.0,
                     new_mem,
-                    a.get_sizes().front());
+                    b.get_sizes().back());
         Container res = Container(new_sizes, new_mem);
 
 //        for (int i = 0; i < new_sizes.front(); i++) {
