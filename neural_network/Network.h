@@ -29,26 +29,26 @@ public:
     std::size_t size() const { return e - b; }
 };
 
-using mini_batch_view = view<std::vector<std::tuple<narray<float>, narray<float>>>::iterator, std::tuple<narray<float>,
-        narray<float>>>;
+using mini_batch_view = view<std::vector<std::tuple<narray<double>, narray<double>>>::iterator, std::tuple<narray<double>,
+        narray<double>>>;
 
-using training_data_container = std::vector<std::tuple<narray<float>, narray<float>>>;
+using training_data_container = std::vector<std::tuple<narray<double>, narray<double>>>;
 
-using training_data_tuple = std::tuple<std::vector<narray<float>>, std::vector<narray<float>>>;//todo переименовать
+using training_data_tuple = std::tuple<std::vector<narray<double>>, std::vector<narray<double>>>;//todo переименовать
 
 class Network {
 public:
-    Network(const std::vector<int> sizes, MNISTReader &mnist_reader, float eta = 3.f) : sizes(sizes), mnist_reader(mnist_reader), eta(eta) {}
+    Network(const std::vector<int> sizes, MNISTReader &mnist_reader, double eta = 3.f) : sizes(sizes), mnist_reader(mnist_reader), eta(eta) {}
 private:
     const std::vector<int> sizes;
     int num_layer;
-    std::vector<narray<float>> biases;
-    std::vector<narray<float>> weights;
+    std::vector<narray<double>> biases;
+    std::vector<narray<double>> weights;
     MNISTReader &mnist_reader;
 public:
     void init();
 
-    void print(narray<float>& t);
+    void print(narray<double>& t);
 
     void train(unsigned char * images,unsigned char * labels, unsigned image_size, unsigned size,  unsigned int validation_size, unsigned epochs, unsigned mini_batch_size);
     //    def evaluate(self, test_data):
@@ -59,14 +59,14 @@ public:
 //    test_results = [(np.argmax(self.feedforward(x)), y)
 //    for (x, y) in test_data]
 //    return sum(int(x == y) for (x, y) in test_results)
-    int evaluate(   narray<float>&  container);
+    int evaluate(   narray<double>&  container);
 
 private:
-    narray<float> &feed_forward(narray<float>& a);
+    narray<double> &feed_forward(narray<double>& a);
 
-    training_data_tuple back_propagation(narray<float> &x, narray<float> &y);
+    training_data_tuple back_propagation(narray<double> &x, narray<double> &y);
 
-    void update_mini_batch(mini_batch_view mini_batch, float eta);
+    void update_mini_batch(mini_batch_view mini_batch, double eta);
 
     void SGD(training_data_container& training_data,  training_data_container &test_data,  int epochs, int mini_batch_size);
 

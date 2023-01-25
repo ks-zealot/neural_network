@@ -18,21 +18,26 @@ void print_matrix(narray<T> &array) {
 };
 int main(int argc, const char *argv[]) {
 
-    std::vector<std::vector<float>> v1 = {{-0.513067,  0.544265},
+    std::vector<std::vector<double>> v1 = {{-0.513067,  0.544265},
                                           {0.683725,  0.0883649},
                                           {-0.0245399,  0.661257}};
-    std::vector<std::vector<float>> v2 = {{-0.74331, -1.00973},
+    std::vector<std::vector<double>> v2 = {{-0.74331, -1.00973},
                                           {0.73697,  2.04419},
                                           {0.064087, 1.15236}};
-    narray<float> obj1 = narray<float>(v1);
-    print_matrix<float>(obj1);
-    std::cout << std::endl;
-    narray<float> obj2 = narray<float>(v2);
-    print_matrix<float>(obj2);
-    std::cout << std::endl;
+    narray<double> obj1 = narray<double>(v1);
+//    print_matrix<double>(obj1);
+//    std::cout << std::endl;
+    narray<double> obj2 = narray<double>(v2);
+//    print_matrix<double>(obj2);
+//    std::cout << std::endl;
 
-    obj2 -= obj1;
-    print_matrix<float>(obj2);
+//    obj2 -= obj1;
+//    print_matrix<double>(obj2);
+//    std::cout << std::endl;
+    print_matrix<double>(obj1);
+    std::cout << std::endl;
+    narray<double> obj3 = obj1 + obj2;
+    print_matrix<double>(obj3);
     std::cout << std::endl;
     return 0;
 }

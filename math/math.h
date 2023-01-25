@@ -46,6 +46,11 @@ void char_to_float_conversion(const std::vector<unsigned char> &z, std::vector<f
     std::transform(z.begin(), z.end(), res.begin(), [](unsigned char t) { return ((float) t / 255.f); });
 }
 
+void char_to_double_conversion(const std::vector<unsigned char> &z, std::vector<double> &res) {
+    std::transform(z.begin(), z.end(), res.begin(), [](unsigned char t) { return ((double) t / 255.); });
+}
+
+
 std::vector<float> vectorize(unsigned char z, int max) {
     std::vector<float> res(max);
     res[z] = 1.0f;
@@ -57,7 +62,6 @@ void vectorize(Iterator1 &__input1, Iterator2 &__input2, int max) {
     std::for_each(__input1.begin(), __input1.end(),
                   [&__input2, &max](T t) { __input2.push_back(vectorize(t, max)); });
 }
-
 
 
 template<typename T, typename T1>
@@ -79,7 +83,6 @@ std::vector<T> mul(std::vector<T> vector1, std::vector<T> vector2) {
 
 template<typename Container>
 int max_arg(const Container &c) {
-//    return  cblas_isamax(c.get_mem_size(), c.get_mem(), 0);
     if (c.begin() == c.end())
         throw std::invalid_argument("empty container is not allowed.");
     return (int) std::max_element(c.begin(), c.end());
@@ -128,7 +131,7 @@ void mmult(const ValT *A, int ADim1, int ADim2, const ValT *B, int BDim1, int BD
 
 
 template<typename Container, typename T>
-Container dot_product(const Container& a, const Container& b) {
+Container dot_product(const Container &a, const Container &b) {
     if (a.get_sizes().empty() && b.get_sizes().empty()) {
         Container res = a;
         res *= b;
@@ -173,20 +176,37 @@ Container dot_product(const Container& a, const Container& b) {
            *  ссылка на результирующий массив
            *  длина первого измерения третьего массива
            */
-        cblas_sgemm(CblasRowMajor,
-                    a.is_transposed() ? CblasTrans : CblasNoTrans,
-                    b.is_transposed() ? CblasTrans : CblasNoTrans,
-                    a.get_sizes().front(),
-                    b.get_sizes().back(),
-                    a.get_sizes().back(),
-                    1.0,
-                    a.get_mem(),
-                    a.is_transposed() ? a.get_sizes().front():   a.get_sizes().back(),
-                    b.get_mem(),
-                    b.is_transposed() ? b.get_sizes().front():   b.get_sizes().back(),
-                    0.0,
-                    new_mem,
-                    b.get_sizes().back());
+//        if (std::is_same<T, float>::value) {
+//            cblas_sgemm(CblasRowMajor,
+//                        a.is_transposed() ? CblasTrans : CblasNoTrans,
+//                        b.is_transposed() ? CblasTrans : CblasNoTrans,
+//                        a.get_sizes().front(),
+//                        b.get_sizes().back(),
+//                        a.get_sizes().back(),
+//                        1.0,
+//                        a.get_mem(),
+//                        a.is_transposed() ? a.get_sizes().front() : a.get_sizes().back(),
+//                        b.get_mem(),
+//                        b.is_transposed() ? b.get_sizes().front() : b.get_sizes().back(),
+//                        0.0,
+//                        new_mem,
+//                        b.get_sizes().back());
+//        } else {
+            cblas_dgemm(CblasRowMajor,
+                        a.is_transposed() ? CblasTrans : CblasNoTrans,
+                        b.is_transposed() ? CblasTrans : CblasNoTrans,
+                        a.get_sizes().front(),
+                        b.get_sizes().back(),
+                        a.get_sizes().back(),
+                        1.0,
+                        a.get_mem(),
+                        a.is_transposed() ? a.get_sizes().front() : a.get_sizes().back(),
+                        b.get_mem(),
+                        b.is_transposed() ? b.get_sizes().front() : b.get_sizes().back(),
+                        0.0,
+                        new_mem,
+                        b.get_sizes().back());
+//        }
         Container res = Container(new_sizes, new_mem);
 
 //        for (int i = 0; i < new_sizes.front(); i++) {

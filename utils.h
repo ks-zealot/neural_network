@@ -9,7 +9,13 @@
 //const unsigned int BLOCK_SIZE = 2;
 void print_image(unsigned int Width, unsigned int Height, unsigned char *data);
 
+void print_image(unsigned int Width, unsigned int Height, double *data, int label);
+
+void print_image(unsigned int Width, unsigned int Height, double *data, int label, int evaluated);
+
 void print_weight(unsigned int Width, unsigned int Height, float *weight);
+
+void print_weight(unsigned int Width, unsigned int Height, double *weight);
 
 void print_pixel(unsigned int pos, unsigned int x, unsigned int y);
 

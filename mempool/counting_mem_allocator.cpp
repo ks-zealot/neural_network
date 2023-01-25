@@ -13,3 +13,4 @@ template<typename T> std::unordered_map<std::size_t, int> counting_mem_allocator
 
 template class counting_mem_allocator<int>;
 template class counting_mem_allocator<float>;
+template class counting_mem_allocator<double>;

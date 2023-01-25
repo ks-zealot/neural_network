@@ -1,3 +1,4 @@
+#include <sstream>
 #include "utils.h"
 #include "global.h"
 
@@ -24,6 +25,57 @@ void print_image(unsigned int Width, unsigned int Height, unsigned char *data) {
     refresh();
 }
 
+void print_image(unsigned int Width, unsigned int Height, double *data, int label) {
+    unsigned int x = 0;
+    unsigned int y = 0;
+    start_color();
+    init_pair(1, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(2, COLOR_GREEN, COLOR_BLACK);
+    for (unsigned int j = 0; j < Height; j++) {
+        for (unsigned int i = 0; i < Width; i++) {
+            unsigned int pos = data[i + (j * Width)] * 5.0;
+            print_pixel(pos, x, y);
+            x += 4;
+        }
+        y += 2;
+        x = 0;
+    }
+    std::stringstream ss;
+    ss << "This is ";
+    ss << label;
+    printw(ss.str().c_str());
+    refresh();
+}
+
+void print_image(unsigned int Width, unsigned int Height, double *data, int label, int evaluated) {
+    unsigned int x = 0;
+    unsigned int y = 0;
+    start_color();
+    init_pair(1, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(2, COLOR_GREEN, COLOR_BLACK);
+    for (unsigned int j = 0; j < Height; j++) {
+        for (unsigned int i = 0; i < Width; i++) {
+            unsigned int pos = data[i + (j * Width)] * 5.0;
+            print_pixel(pos, x, y);
+            x += 4;
+        }
+        y += 2;
+        x = 0;
+    }
+    std::stringstream ss;
+    ss << "This is ";
+    ss << label;
+    if (label == evaluated) {
+        ss << " and evualated ";
+    } else {
+        ss << " but evualated ";
+    }
+
+    ss << evaluated;
+    printw(ss.str().c_str());
+    refresh();
+}
+
 float sigmoid(float z) {//todo найти способ не дублировать функции
     return 1.f / (1.f + exp(-z));
 }
@@ -44,7 +96,21 @@ void print_weight(unsigned int Width, unsigned int Height, float *weight) {
     refresh();
 }
 
+void print_weight(unsigned int Width, unsigned int Height, double *weight) {
+    unsigned int x = 0;
+    unsigned int y = 0;
+    for (unsigned int j = 0; j < Height; j++) {
+        for (unsigned int i = 0; i < Width; i++) {
+            unsigned int pos = fabs(sigmoid(weight[i + (j * Width)]) * 5.f);
+            print_pixel(pos, x, y);
+            x += 4;
+        }
+        y += 2;
+        x = 0;
+    }
 
+    refresh();
+}
 
 void print_pixel(unsigned int pos, unsigned int x, unsigned int y) {
     const wchar_t *block = blocks[pos];

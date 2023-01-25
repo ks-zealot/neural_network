@@ -109,6 +109,30 @@ add_test(
         COMMAND $<TARGET_FILE:narray_test_transpose>
 )
 
+add_executable(char_to_double_conversion test/char_to_double_conversion.cpp)
+target_link_libraries(char_to_double_conversion PRIVATE narray  spdlog::spdlog_header_only  ${BLAS_LIBRARIES})
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME char_to_double_conversion
+        COMMAND $<TARGET_FILE:char_to_double_conversion>
+)
+
+add_executable(narray_test_update_weight test/narray_test_update_weight.cpp)
+target_link_libraries(narray_test_update_weight PRIVATE narray  spdlog::spdlog_header_only  ${BLAS_LIBRARIES})
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_update_weight
+        COMMAND $<TARGET_FILE:narray_test_update_weight>
+)
+
 add_executable(narray_test_iterator test/narray_test_iterator.cpp)
 target_link_libraries(narray_test_iterator PRIVATE narray)
 
@@ -268,6 +292,17 @@ add_test(
         NAME narray_test_dot_product_1
         COMMAND $<TARGET_FILE:narray_test_dot_product_1>
 )
+add_executable(narray_test_dot_product_1_1 math/math.h test/narray_test_dot_product_1_1.cpp)
+target_link_libraries(narray_test_dot_product_1_1 PRIVATE narray  ${BLAS_LIBRARIES})
+
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_dot_product_1_1
+        COMMAND $<TARGET_FILE:narray_test_dot_product_1_1>
+)
 
 
 add_executable(narray_test_blas math/math.h test/narray_test_blas.cpp)
@@ -398,8 +433,33 @@ enable_testing()
 # define tests
 add_test(
         NAME narray_test_maxarg
-        COMMAND $<TARGET_FILE:narray_test_matsum>
+        COMMAND $<TARGET_FILE:narray_test_maxarg>
 )
+
+add_executable(narray_test_maxarg_1 math/math.h global.cpp utils/zip_iterator.h utils/zipper.h test/narray_test_maxarg_1.cpp)
+target_link_libraries(narray_test_maxarg_1 PRIVATE narray spdlog::spdlog_header_only ${BLAS_LIBRARIES})
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_test_maxarg_1
+        COMMAND $<TARGET_FILE:narray_test_maxarg_1>
+)
+
+add_executable(narray_feedforward_test math/math.h global.cpp utils/zip_iterator.h utils/zipper.h test/narray_feedforward_test.cpp)
+target_link_libraries(narray_feedforward_test PRIVATE narray spdlog::spdlog_header_only ${BLAS_LIBRARIES})
+# enable testing functionality
+enable_testing()
+
+# define tests
+add_test(
+        NAME narray_feedforward_test
+        COMMAND $<TARGET_FILE:narray_feedforward_test>
+)
+
+
+
 
 add_executable(narray_test_dot_product_5 math/math.h test/narray_test_dot_product_5.cpp)
 target_link_libraries(narray_test_dot_product_5 PRIVATE narray)

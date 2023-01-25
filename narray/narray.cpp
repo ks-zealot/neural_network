@@ -128,7 +128,6 @@ narray<T>::~narray() {
 }
 
 template<typename T>
-//возвращает новый наррай
 narray<T> narray<T>::transpose(int axis1, int axis2) {
     narray<T> copy = *this;
     std::iter_swap(copy.sizes.begin() + axis1, copy.sizes.begin() + axis2);
@@ -168,7 +167,7 @@ void narray<T>::dump(T *dump) const {
 template<typename T>
 typename narray<T>::iterator narray<T>::insert(narray::iterator position, narray::value_type const &val) {
     int idx = std::distance(begin(), position);
-    *(mem + idx) = *(val.mem);
+    mem[idx] = val.mem[0];
     return position;
 }
 
@@ -178,3 +177,6 @@ class narray<int>;
 
 template
 class narray<float>;
+
+template
+class narray<double>;

@@ -67,8 +67,9 @@ public:
 
     virtual void fill(T *mem, int size) {
         std::random_device r;
-        std::default_random_engine generator(r());
-        std::normal_distribution<float> distribution(0., 1.);
+//        std::default_random_engine generator(r());
+        std::mt19937 generator(r());
+        std::normal_distribution<T> distribution(0., 1.);
         for (int i = 0; i < size; i++) {
             T t = T(distribution(generator));
             mem[i] = t;
@@ -308,7 +309,7 @@ public:
         mem_policy = new standart_policy<T>();
         allocator = alloc;
         transposed = rhs.transposed;
-        memcpy(mem, rhs.mem, sizeof(T) * rhs.mem_size);
+        memcpy(mem, rhs.mem, sizeof(T) * rhs.mem_size);//todo
         return *this;
     }
 
@@ -380,13 +381,15 @@ public:
         return *this;
     }
 
-    friend narray<T> &operator*(narray<T> &lhs, T const &rhs) {
-        lhs *= rhs;
-        return lhs;
+    friend narray<T> operator*(narray<T> &lhs, T const &rhs) {
+        narray<T> copy = lhs;
+        copy *= rhs;
+        return copy;
     }
 
-    friend narray<T> &operator+(narray<T> &lhs, T const &rhs) {
-        lhs += rhs;
+    friend narray<T> operator+(narray<T> &lhs, T const &rhs) {
+        narray<T> copy = lhs;
+        copy += rhs;
         return lhs;
     }
 
@@ -416,8 +419,9 @@ public:
     }
 
     friend narray<T> operator-(narray<T> &lhs, narray<T> const &rhs) {
-        lhs -= rhs;
-        return lhs;
+        narray<T> copy = lhs;
+        copy -= rhs;
+        return copy;
     }
 
     narray<T> &operator*=(narray<T> const &rhs) {
@@ -432,14 +436,16 @@ public:
         return *this;
     }
 
-    friend narray<T> &operator*(narray<T> &lhs, narray<T> const &rhs) {
-        lhs *= rhs;
-        return lhs;
+    friend narray<T> operator*(narray<T> &lhs, narray<T> const &rhs) {
+        narray<T> copy = lhs;
+        copy *= rhs;
+        return copy;
     }
 
-    friend narray<T> &operator*(narray<T> &&lhs, narray<T> const &rhs) {
-        lhs *= rhs;
-        return lhs;
+    friend narray<T> operator*(narray<T> &&lhs, narray<T> const &rhs) {
+        narray<T> copy = lhs;
+        copy *= rhs;
+        return copy;
     }
 
 
