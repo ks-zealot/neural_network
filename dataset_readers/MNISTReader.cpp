@@ -17,18 +17,6 @@
 void MNISTReader::read() {
     extractDataset();
     extractLabels();
-//    showImages();
-
-
-    //initscr();
-    // printw("Display random image...");
-
-    // print_image(number_of_rows, number_of_cols, (unsigned char *) images[1]->image);
-//    std::cin.get();
-//    endwin();
-
-    //   std::this_thread::sleep_for (std::chrono::seconds(25));
-    // endwin();
 }
 
 void MNISTReader::extractLabels() {
@@ -75,7 +63,7 @@ void MNISTReader::close() {
 
 
 void MNISTReader::train() {
-    Network network({number_of_rows * number_of_cols, 30, 10}, *this, 1.);
+    Network network({number_of_rows * number_of_cols, 30, 10}, *this, 0.5);
     network.init();
     network.train((unsigned char*)images,(unsigned char*) labels, number_of_rows * number_of_cols,
                   number_of_images - 10000, 10000, 30, 10);

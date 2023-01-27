@@ -71,8 +71,7 @@ public:
         std::mt19937 generator(r());
         std::normal_distribution<T> distribution(0., 1.);
         for (int i = 0; i < size; i++) {
-            T t = T(distribution(generator));
-            mem[i] = t;
+            mem[i] = T(distribution(generator));
         }
     }
 };

@@ -15,12 +15,6 @@ int main(int argc, const char *argv[]) {
     start_color();
     init_pair(1, COLOR_MAGENTA, COLOR_BLACK);
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
-//    counting_mem_allocator<float>::create_mempool(28 * 28, 100000);// images
-//    counting_mem_allocator<float>::create_mempool(28 * 28 * 30, 100); // weight
-//    counting_mem_allocator<float>::create_mempool(10 * 30, 100);// weight
-//    counting_mem_allocator<float>::create_mempool(30, 100);// biases
-//    counting_mem_allocator<float>::create_mempool(10, 100000 + 100);// biases + labels
-//    counting_mem_allocator<float>::create_mempool(1, 100);//scalar
     MNISTReader reader("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
     reader.prepare();
     reader.read();

@@ -16,9 +16,9 @@ void print_image(unsigned int Width, unsigned int Height, unsigned char *data) {
         for (unsigned int i = 0; i < Width; i++) {
             unsigned int pos = data[i + (j * Width)] / 64;
             print_pixel(pos, x, y);
-            x += 4;
+            x += BLOCK_SIZE * 2;
         }
-        y += 2;
+        y += BLOCK_SIZE;
         x = 0;
     }
 
@@ -35,9 +35,9 @@ void print_image(unsigned int Width, unsigned int Height, double *data, int labe
         for (unsigned int i = 0; i < Width; i++) {
             unsigned int pos = data[i + (j * Width)] * 5.0;
             print_pixel(pos, x, y);
-            x += 4;
+            x += BLOCK_SIZE * 2;
         }
-        y += 2;
+        y += BLOCK_SIZE;
         x = 0;
     }
     std::stringstream ss;
@@ -47,19 +47,21 @@ void print_image(unsigned int Width, unsigned int Height, double *data, int labe
     refresh();
 }
 
-void print_image(unsigned int Width, unsigned int Height, double *data, int label, int evaluated) {
+void print_image(unsigned int Width, unsigned int Height, const double *data, int label, int evaluated) {
+    clear();
+    refresh();
     unsigned int x = 0;
     unsigned int y = 0;
     start_color();
-    init_pair(1, COLOR_MAGENTA, COLOR_BLACK);
-    init_pair(2, COLOR_GREEN, COLOR_BLACK);
+    init_pair(1, COLOR_BLACK, COLOR_WHITE);
+    init_pair(2, COLOR_WHITE, COLOR_WHITE);
     for (unsigned int j = 0; j < Height; j++) {
         for (unsigned int i = 0; i < Width; i++) {
             unsigned int pos = data[i + (j * Width)] * 5.0;
             print_pixel(pos, x, y);
-            x += 4;
+            x += BLOCK_SIZE * 2;
         }
-        y += 2;
+        y += BLOCK_SIZE;
         x = 0;
     }
     std::stringstream ss;
@@ -87,25 +89,27 @@ void print_weight(unsigned int Width, unsigned int Height, float *weight) {
         for (unsigned int i = 0; i < Width; i++) {
             unsigned int pos = fabs(sigmoid(weight[i + (j * Width)]) * 5.f);
             print_pixel(pos, x, y);
-            x += 4;
+            x += BLOCK_SIZE * 2;
         }
-        y += 2;
+        y += BLOCK_SIZE;
         x = 0;
     }
 
     refresh();
 }
 
-void print_weight(unsigned int Width, unsigned int Height, double *weight) {
+void print_weight(unsigned int Width, unsigned int Height, const double *weight) {
+    clear();
+    refresh();
     unsigned int x = 0;
     unsigned int y = 0;
     for (unsigned int j = 0; j < Height; j++) {
         for (unsigned int i = 0; i < Width; i++) {
             unsigned int pos = fabs(sigmoid(weight[i + (j * Width)]) * 5.f);
             print_pixel(pos, x, y);
-            x += 4;
+            x += BLOCK_SIZE * 2;
         }
-        y += 2;
+        y += BLOCK_SIZE;
         x = 0;
     }
 

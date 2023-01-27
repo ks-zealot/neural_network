@@ -1,135 +1,125 @@
-#include <curl/curl.h>
-#include <curl/easy.h>
-#include <curl/system.h>
 #include <ncurses.h>
-#include <stdio.h>
-
 #include <cstddef>
 #include <iostream>
-
-#include "destinations/DummyDestination.h"
-#include "destinations/ImageDestination.h"
-#include "global.h"
-#include "mempool/data/gzChunk.h"
-#include "pipes/GzPipe.h"
-#include "sources/mnist/MNISTsource.h"
-#include "logging/log.h"
 #include "threadpool/ThreadPool.h"
 #include "tools/FileDownloader.h"
 #include "tools/ArchiveDecompressor.h"
-#include "dataset_readers/DatasetImage.h"
 #include "dataset_readers/MNISTReader.h"
 #include "narray/narray.h"
-#include "neural_network/Network.h"
-#include "utils.h"
-// struct progress {
-//    char *pr;
-//    size_t size;
-//};
-//
-//
-// std::size_t write_data(void *ptr, std::size_t size, std::size_t nmemb, FILE
-// *stream) {
-//    std::size_t written = fwrite(ptr, size, nmemb, stream);
-//    return written;
-//}
-//
-// static std::size_t progress_function(void *clientp,
-//                                     curl_off_t dltotal,
-//                                     curl_off_t dlnow,
-//                                     curl_off_t ultotal,
-//                                     curl_off_t ulnow) {
-////  mvaddch(0,dlnow/dltotal * 100,'#');
-//    if (dltotal == 0.) {
-//        return 0;
-//    }
-////  std::cout << "progress " << dltotal << " " << dlnow << " " << ultotal << "
-///" << ulnow << std::endl; /  std::cout <<  dlnow * 100 / dltotal  <<
-///std::endl;
-//    mvaddch(1,dlnow * 100 / dltotal, '#' );
-//    refresh();
-//    return 0;
-//}
-//
+#include "global.h"
 
 
+
+//const wchar_t *       splash1 = L"/‾‾‾‾‾/      /‾‾‾‾‾‾‾‾‾/   /‾‾‾‾‾‾‾‾‾‾/   /‾‾/       /‾‾‾‾‾‾‾‾/ /‾‾‾‾‾‾‾‾‾‾/";
+//const wchar_t *       splash2 = L"‾‾‾/ /      / /‾‾‾‾‾‾‾‾   /  (‾‾‾‾)  /   /  /       / /‾‾‾‾/ /  ‾‾‾‾/ /‾‾‾‾";
+//const wchar_t *       splash3 = L"  / /      /  ‾‾‾‾‾‾‾/   /  /‾‾‾‾/  /   /  /       / /    / /      / /        ";
+//const wchar_t *       splash4 = L" / /＿＿  / /‾‾‾‾‾‾‾‾   /  /    /  /   /  /       / /    / /      / /         ";
+//const wchar_t *       splash5 = L"/＿＿＿/ /  ‾‾‾‾‾‾‾‾/  /＿/    /＿/   /   ‾‾‾‾/  / /＿＿/ /      / /          ";
+//const wchar_t *       splash6 = L"         ‾‾‾‾‾‾‾‾‾‾                   ‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾       ‾‾          ";
+//const wchar_t *       splash7 = L"    /‾‾‾‾‾/  /‾‾‾‾‾‾‾‾/ /‾‾‾‾‾\\        /‾‾‾‾‾‾‾ \\                          ";
+//const wchar_t *       splash8 = L"   / /‾‾‾   / /    / / / /‾‾‾/ )      /  /‾‾‾‾‾) /                          ";
+//const wchar_t *       splash9 = L"  / /      / /    / / / /＿＿/ /     /  /＿＿＿/ /                           ";
+//const wchar_t *       splash10 =L" / /      / /    / / / /‾‾‾\\ \\      /   ＿＿＿＿ /                            ";
+//const wchar_t *       splash11 =L"/  ‾‾‾/  / /    / / / /     \\ \\    /  / ＿                                   ";
+//const wchar_t *       splash12 =L"‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾  ‾‾        ‾‾   ‾‾  (＿)                                  ";
+
+void print_splash() {
+    attron(A_BOLD);
+    attron(COLOR_PAIR(1));
+    unsigned pos = 20;
+    mvaddwstr( pos,56,
+               splash1);
+    pos++;
+    mvaddwstr( pos,56,
+               splash2);
+    pos++;
+    mvaddwstr( pos,56,
+               splash3);
+    pos++;
+    mvaddwstr( pos,56,
+               splash4);
+    pos++;
+    mvaddwstr( pos,56,
+               splash5);
+    pos++;
+    mvaddwstr( pos,56,
+               splash6);
+    pos++;
+    mvaddwstr( pos,56,
+               splash7);
+    pos++;
+    mvaddwstr( pos,56,
+               splash8);
+    pos++;
+    mvaddwstr( pos,56,
+               splash9);
+    pos++;
+    mvaddwstr( pos,56,
+               splash10);
+    pos++;
+    mvaddwstr( pos,56,
+               splash11);
+    pos++;
+    mvaddwstr( pos,56,
+               splash12);
+
+
+    refresh();
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    attroff(A_BOLD);
+    attroff(COLOR_PAIR(1));
+}
+
+void show_prepare_screen() {
+    move(28, 56);
+    printw("Open dataset...");
+    refresh();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+
+void show_read_screen() {
+    move(30, 56);
+    printw("Read files...");
+    refresh();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+
+void show_train_screen() {
+    move(32, 56);
+    printw("Train...");
+    refresh();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+}
 
 int main(int argc, const char *argv[]) {
-//    info("start neuronet app");
+//    setlocale(LC_CTYPE, "en_US.UTF-8");
+    setlocale(LC_ALL, "");
+    initscr();
 
-
-//    FileDownloader downloader1("https://ossci-datasets.s3.amazonaws.com/mnist/train-images-idx3-ubyte.gz",
-//                               "train-images-idx3-ubyte.gz");
-//    FileDownloader downloader2("https://ossci-datasets.s3.amazonaws.com/mnist/train-labels-idx1-ubyte.gz",
-//                               "train-labels-idx1-ubyte.gz");
-//    ArchiveDecompressor decompressor1("train-images-idx3-ubyte.gz");
-//    ArchiveDecompressor decompressor2("train-labels-idx1-ubyte.gz");
-//    downloader1.setup();
-//    downloader1.download();
-//    downloader2.setup();
-//    downloader2.download();
-//    decompressor1.extract();
-//    decompressor2.extract();
-//    downloader1.shutdown();
-//    downloader2.shutdown();
-//
-    MNISTReader reader("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
-//    reader.prepare();
-//    reader.read();
-//    reader.train();
-//    reader.close();
-
- initscr();
-//    start_color();
-//    init_pair(1, COLOR_GREEN, COLOR_GREEN);
-//    init_pair(2, COLOR_BLACK, COLOR_BLACK);
-    print_pixel(2, 0, 0);
+    start_color();
+    init_pair(1, COLOR_GREEN, COLOR_BLACK);
+    init_pair(2, COLOR_WHITE, COLOR_WHITE);
+    print_splash();
+    clear();
     refresh();
-    std::this_thread::sleep_for(std::chrono::seconds(100));
-endwin();
-//  threadPool.Start();
-//
-// MNISTsource MNISTsource(
-//   "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz", "mnist.gz",
-// {new ImageDestination()}, {new GzPipe()});
-// MNISTsource.retrieve();
-//threadPool.Stop();
-//  info("return");
+    attron(COLOR_PAIR(1));
+    MNISTReader reader("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
+    clear();
+    refresh();
+    std::thread t1(show_prepare_screen);
+    reader.prepare();
+    t1.join();
+    std::thread t2(show_read_screen);
+    reader.read();
+    t2.join();
+    show_train_screen();
+    clear();
+    refresh();
+    attroff(COLOR_PAIR(1));
+    init_pair(1, COLOR_BLACK, COLOR_WHITE);
+    init_pair(2, COLOR_WHITE, COLOR_WHITE);
+    reader.train();
+    reader.close();
+    endwin();
     return 0;
-    //    initscr();
-    //    resizeterm(2, 100);
-    //    char* version =  curl_version();
-    //    std::cout << version << std::endl;
-    //    CURL *curl;
-    //    FILE *fp;
-    //    CURLcode res;
-    //    const  char *url =
-    //    "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz";
-    ////  const char* url =
-    ///"https://dumps.wikimedia.org/other/pagecounts-raw/2016/2016-08/pagecounts-20160801-000000.gz";
-    //    char outfilename[FILENAME_MAX] = "mnist.gz";
-    //    curl = curl_easy_init();
-    //    if (curl) {
-    //        printw("Downloading file...");
-    //        refresh();
-    //        fp = fopen(outfilename,"wb");
-    //        curl_easy_setopt(curl, CURLOPT_URL, url);
-    //        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-    //        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-    //        curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_function);
-    //        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
-    //        struct progress data;
-    //
-    //        /* pass struct to callback  */
-    //        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, &data);
-    //// curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
-    //        res = curl_easy_perform(curl);
-    //
-    //        /* always cleanup */
-    //        curl_easy_cleanup(curl);
-    //        fclose(fp);
-    //        refresh();
-    //    }
-    //    endwin();
-    //    return 0;
 }
