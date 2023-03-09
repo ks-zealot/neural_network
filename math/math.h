@@ -90,7 +90,7 @@ int max_arg(const Container &c) {
 
 template<typename n_array>
 n_array cost_derivative(n_array activations, n_array sgm_prime) {
-    n_array res = activations - sgm_prime;//todo чот странное, содержимое наррай не должно меняться при вычитании
+    n_array res = activations - sgm_prime;
     return res;
 }
 

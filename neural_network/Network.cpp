@@ -11,12 +11,11 @@
 #include "math/math.h"
 #include "utils.h"
 #include "logging/log.h"
-#include "profiling/time_profiling.h"
 
-void print_matrix(narray<double> &array) {
-    for (int i = 0; i < 28; i++) {//todo хардкод
-        for (int j = 0; j < 28; j++) {
-            double t = *(array.at({0, j + (i * 28)}));
+void print_matrix(narray<double> &array, short size) {
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            double t = *(array.at({0, j + (i * size)}));
             std::cout << " " << t;
         }
         std::cout << std::endl;
@@ -48,7 +47,7 @@ narray<double> &Network::feed_forward(narray<double> &a) {
     return a;
 }
 
-training_data_tuple Network::back_propagation(narray<double> &x, narray<double> &y) {
+vector_tuple Network::back_propagation(narray<double> &x, narray<double> &y) {
 //    print_image(28, 28, x.get_mem(), max_arg(y));
 //    std::cin.get();
     std::vector<narray<double>> nabla_b;
@@ -84,7 +83,7 @@ training_data_tuple Network::back_propagation(narray<double> &x, narray<double> 
         nabla_w[nabla_w.size() - l] = dot_product<narray<double>, double>(delta, activations[activations.size() - l -
                                                                                              1].transpose());
     }
-    return training_data_tuple(nabla_b, nabla_w);
+    return vector_tuple(nabla_b, nabla_w);
 }
 
 void Network::update_mini_batch(mini_batch_view mini_batch, double eta) {
@@ -97,9 +96,9 @@ void Network::update_mini_batch(mini_batch_view mini_batch, double eta) {
         nabla_w.push_back(narray<double>(w.get_sizes()));
     }
     for (std::tuple<narray<double>, narray<double>> &tpl: mini_batch) {
-        narray<double> &x = std::get<0>(tpl);//todo если убрать амперсанд точность падает
+        narray<double> &x = std::get<0>(tpl);
         narray<double> &y = std::get<1>(tpl);
-        training_data_tuple back_prp_res = back_propagation(x, y);
+        vector_tuple back_prp_res = back_propagation(x, y);
         std::vector<narray<double>> &delta_nabla_b = std::get<0>(back_prp_res);
         std::vector<narray<double>> &delta_nabla_w = std::get<1>(back_prp_res);
         int idx = 0;
@@ -171,10 +170,14 @@ Network::train(unsigned char *images, unsigned char *labels, unsigned image_size
     std::vector<double> prepared_img = std::vector<double>(image_size);
     std::vector<unsigned char> img = std::vector<unsigned char>(image_size);
     std::vector<double> vectorized = std::vector<double>(10);
+
     for (int i = 0; i < size; i++) {
+        std::vector<unsigned char> slice =
+                std::vector<unsigned char>(images + i * image_size,
+                                           images + image_size + i * size);
         for (int j = 0; j < image_size; j++) {
-            img[j] = (*(images + j + (image_size * i)));
-        }//todo заменить на инсерт с вьюшкой
+            img[j] = slice[j];//(*(images + j + (image_size * i)));
+        }
         char_to_double_conversion(img, prepared_img);
         vectorized[*(labels + i)] = 1.f;
         narray<double> _img = narray<double>(prepared_img);
@@ -185,10 +188,12 @@ Network::train(unsigned char *images, unsigned char *labels, unsigned image_size
         vectorized[*(labels + i)] = 0.f;
     }
     for (int i = 0; i < validation_size; i++) {
+        std::vector<unsigned char> slice =
+                std::vector<unsigned char>(images + i * image_size,
+                                           images + image_size + i * size);
         for (int j = 0; j < image_size; j++) {
-            img[j] = (*(images + j + (image_size * i) + (image_size * size)));
+            img[j] = slice[j];//(*(images + j + (image_size * i) + (image_size * size)));
         }
-        //todo заменить на инсерт с вьюшкой
         char_to_double_conversion(img, prepared_img);
         vectorized[*(labels + i + size)] = 1.f;
         narray<double> _img = narray<double>(prepared_img);

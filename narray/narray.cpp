@@ -9,13 +9,13 @@
 
 template<typename T>
 narray<T>::narray() {
-    this->mem_policy = new standart_policy<T>();
+    this->mem_policy = standart_policy<T>::GetInstance();
     allocator = std::allocator<T>();
 }
 
 template<typename T>
 narray<T>::narray(narray<T> &&rhs) noexcept {
-    if (mem) {//в случае если присвоение происходит уже инициализированному наррай происходит утечка из васиной уздечки ^W^W^^W^W^W^W^W^ памяти
+    if (mem) {
         counting_mem_allocator<T>::deallocate(allocator, mem, mem_size);
         mem = nullptr;
     }

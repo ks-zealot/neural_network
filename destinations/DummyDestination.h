@@ -3,7 +3,6 @@
 
 #include "destination.h"
 #include "utils/ByteBuffer.h"
-#include "utils/Void.h"
 
 class DummyDestination : public Destination {
   void eat(void* b);

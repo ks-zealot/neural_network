@@ -34,7 +34,7 @@ using mini_batch_view = view<std::vector<std::tuple<narray<double>, narray<doubl
 
 using training_data_container = std::vector<std::tuple<narray<double>, narray<double>>>;
 
-using training_data_tuple = std::tuple<std::vector<narray<double>>, std::vector<narray<double>>>;//todo переименовать
+using vector_tuple = std::tuple<std::vector<narray<double>>, std::vector<narray<double>>>;
 
 class Network {
 public:
@@ -64,7 +64,7 @@ public:
 private:
     narray<double> &feed_forward(narray<double>& a);
 
-    training_data_tuple back_propagation(narray<double> &x, narray<double> &y);
+    vector_tuple back_propagation(narray<double> &x, narray<double> &y);
 
     void update_mini_batch(mini_batch_view mini_batch, double eta);
 

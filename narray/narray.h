@@ -25,7 +25,14 @@ public:
 };
 
 template<typename T>
-class standart_policy : public memory_policy<T> {//todo возращать указатель на статическую перменную
+class standart_policy : public memory_policy<T> {
+public:
+    static standart_policy *GetInstance() {
+        static standart_policy instance;
+        return &instance;
+    };
+
+
     virtual void free(std::allocator<T> alloc, T *mem, std::size_t size) {
         counting_mem_allocator<T>::deallocate(alloc, mem, size);
     }
@@ -33,6 +40,13 @@ class standart_policy : public memory_policy<T> {//todo возращать ук�
 
 template<typename T>
 class subnarray_policy : public memory_policy<T> {
+public:
+
+    static subnarray_policy *GetInstance() {
+        static subnarray_policy instance;
+        return &instance;
+    };
+
     virtual void free(std::allocator<T> alloc, T *mem, std::size_t size) {
     }
 };
@@ -86,7 +100,7 @@ public:
 
     narray();
 
-    narray(T t, memory_policy<T> *policy = new standart_policy<T>(),
+    narray(T t, memory_policy<T> *policy = standart_policy<T>::GetInstance(),
            std::allocator<T> alloc = std::allocator<T>());
 
     narray(const narray<T> &out);
@@ -96,7 +110,7 @@ public:
     template<class B,
             template<class...> class Container,
             class... extras>
-    explicit narray(const Container<B, extras...> &source, memory_policy<T> *policy = new standart_policy<T>(),
+    explicit narray(const Container<B, extras...> &source, memory_policy<T> *policy = standart_policy<T>::GetInstance(),
                     std::allocator<T> alloc = std::allocator<T>()) {
         this->mem_policy = policy;
         this->allocator = alloc;
@@ -120,12 +134,13 @@ public:
         this->stride_info = stride_info;
     };
 
-    narray(std::vector<int> sizes, T *mem, memory_policy<T> *policy = new standart_policy<T>(),
+    narray(std::vector<int> sizes, T *mem, memory_policy<T> *policy = standart_policy<T>::GetInstance(),
            std::allocator<T> alloc = std::allocator<T>());
 
     narray(std::vector<int> sizes, std::vector<int> stride_info, T *mem,
-           memory_policy<T> *policy = new standart_policy<T>(),
-           std::allocator<T> alloc = std::allocator<T>());
+           memory_policy<T> *policy = standart_policy<T>::GetInstance(),
+           std::allocator<T> alloc = std::allocator<T>()
+    );
 
     narray(std::vector<int> sizes, filler<T> &f = zero_filler<T>::GetInstance());
 
@@ -286,7 +301,7 @@ public:
         std::vector<int> offset = sizes;
         std::fill(offset.begin(), offset.end(), 0);
         offset[0] = idx;
-        return narray(new_sizes, new_stride_info, at(offset), new subnarray_policy<T>(),
+        return narray(new_sizes, new_stride_info, at(offset),   subnarray_policy<T>::GetInstance(),
                       std::allocator<T>());
     }
 
@@ -305,10 +320,10 @@ public:
         stride_info = rhs.stride_info;
         std::allocator<T> alloc;
         mem = counting_mem_allocator<T>::allocate(alloc, rhs.mem_size);
-        mem_policy = new standart_policy<T>();
+        mem_policy = standart_policy<T>::GetInstance();
         allocator = alloc;
         transposed = rhs.transposed;
-        memcpy(mem, rhs.mem, sizeof(T) * rhs.mem_size);//todo
+        memcpy(mem, rhs.mem, sizeof(T) * rhs.mem_size);
         return *this;
     }
 
@@ -326,7 +341,7 @@ public:
         stride_info = rhs.stride_info;
         transposed = rhs.transposed;
         rhs.mem = nullptr;
-        rhs.mem_policy = new subnarray_policy<T>();
+        rhs.mem_policy = subnarray_policy<T>::GetInstance();
         return *this;
     }
 

@@ -8,60 +8,45 @@
 #include "narray/narray.h"
 #include "global.h"
 
-
-
-//const wchar_t *       splash1 = L"/‾‾‾‾‾/      /‾‾‾‾‾‾‾‾‾/   /‾‾‾‾‾‾‾‾‾‾/   /‾‾/       /‾‾‾‾‾‾‾‾/ /‾‾‾‾‾‾‾‾‾‾/";
-//const wchar_t *       splash2 = L"‾‾‾/ /      / /‾‾‾‾‾‾‾‾   /  (‾‾‾‾)  /   /  /       / /‾‾‾‾/ /  ‾‾‾‾/ /‾‾‾‾";
-//const wchar_t *       splash3 = L"  / /      /  ‾‾‾‾‾‾‾/   /  /‾‾‾‾/  /   /  /       / /    / /      / /        ";
-//const wchar_t *       splash4 = L" / /＿＿  / /‾‾‾‾‾‾‾‾   /  /    /  /   /  /       / /    / /      / /         ";
-//const wchar_t *       splash5 = L"/＿＿＿/ /  ‾‾‾‾‾‾‾‾/  /＿/    /＿/   /   ‾‾‾‾/  / /＿＿/ /      / /          ";
-//const wchar_t *       splash6 = L"         ‾‾‾‾‾‾‾‾‾‾                   ‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾       ‾‾          ";
-//const wchar_t *       splash7 = L"    /‾‾‾‾‾/  /‾‾‾‾‾‾‾‾/ /‾‾‾‾‾\\        /‾‾‾‾‾‾‾ \\                          ";
-//const wchar_t *       splash8 = L"   / /‾‾‾   / /    / / / /‾‾‾/ )      /  /‾‾‾‾‾) /                          ";
-//const wchar_t *       splash9 = L"  / /      / /    / / / /＿＿/ /     /  /＿＿＿/ /                           ";
-//const wchar_t *       splash10 =L" / /      / /    / / / /‾‾‾\\ \\      /   ＿＿＿＿ /                            ";
-//const wchar_t *       splash11 =L"/  ‾‾‾/  / /    / / / /     \\ \\    /  / ＿                                   ";
-//const wchar_t *       splash12 =L"‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾  ‾‾        ‾‾   ‾‾  (＿)                                  ";
-
 void print_splash() {
     attron(A_BOLD);
     attron(COLOR_PAIR(1));
     unsigned pos = 20;
-    mvaddwstr( pos,56,
-               splash1);
+    mvaddwstr(pos, 56,
+              splash1);
     pos++;
-    mvaddwstr( pos,56,
-               splash2);
+    mvaddwstr(pos, 56,
+              splash2);
     pos++;
-    mvaddwstr( pos,56,
-               splash3);
+    mvaddwstr(pos, 56,
+              splash3);
     pos++;
-    mvaddwstr( pos,56,
-               splash4);
+    mvaddwstr(pos, 56,
+              splash4);
     pos++;
-    mvaddwstr( pos,56,
-               splash5);
+    mvaddwstr(pos, 56,
+              splash5);
     pos++;
-    mvaddwstr( pos,56,
-               splash6);
+    mvaddwstr(pos, 56,
+              splash6);
     pos++;
-    mvaddwstr( pos,56,
-               splash7);
+    mvaddwstr(pos, 56,
+              splash7);
     pos++;
-    mvaddwstr( pos,56,
-               splash8);
+    mvaddwstr(pos, 56,
+              splash8);
     pos++;
-    mvaddwstr( pos,56,
-               splash9);
+    mvaddwstr(pos, 56,
+              splash9);
     pos++;
-    mvaddwstr( pos,56,
-               splash10);
+    mvaddwstr(pos, 56,
+              splash10);
     pos++;
-    mvaddwstr( pos,56,
-               splash11);
+    mvaddwstr(pos, 56,
+              splash11);
     pos++;
-    mvaddwstr( pos,56,
-               splash12);
+    mvaddwstr(pos, 56,
+              splash12);
 
 
     refresh();
