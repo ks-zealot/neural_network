@@ -8,6 +8,7 @@
 #include <cstring>
 #include <random>
 #include <stdexcept>
+#include <cmath>
 
 #include "../utils/narray_util.h"
 #include "narray_coord.h"
@@ -90,6 +91,23 @@ public:
     }
 };
 
+template<typename T>
+class scale_filler : public filler<T> {
+public:
+    unsigned n_out;
+
+    explicit scale_filler(unsigned int nOut) : n_out(nOut) {}
+
+    virtual void fill(T *mem, int size) {
+        std::random_device r;
+//        std::default_random_engine generator(r());
+        std::mt19937 generator(r());
+        std::normal_distribution<T> distribution(0., sqrt(1. / n_out));
+        for (int i = 0; i < size; i++) {
+            mem[i] = T(distribution(generator));
+        }
+    }
+};
 
 template<typename T>
 class narray {
@@ -301,7 +319,7 @@ public:
         std::vector<int> offset = sizes;
         std::fill(offset.begin(), offset.end(), 0);
         offset[0] = idx;
-        return narray(new_sizes, new_stride_info, at(offset),   subnarray_policy<T>::GetInstance(),
+        return narray(new_sizes, new_stride_info, at(offset), subnarray_policy<T>::GetInstance(),
                       std::allocator<T>());
     }
 

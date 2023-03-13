@@ -30,8 +30,8 @@ void Network::init() {
     biases.push_back(narray<double>(std::vector({sizes[2], 1}), random_filler<double>::GetInstance()));
     weights.push_back(narray<double>(std::vector({sizes[1], sizes[0]}), random_filler<double>::GetInstance()));
     weights.push_back(narray<double>(std::vector({sizes[2], sizes[1]}), random_filler<double>::GetInstance()));
-
-
+    activation_functions.push_back(reLU<double, narray<double>>);
+    activation_functions.push_back(sigmoid<double, narray<double>>);
 }
 
 
@@ -41,8 +41,8 @@ void Network::print(narray<double> &t) {
 }
 
 narray<double> &Network::feed_forward(narray<double> &a) {
-    for (auto &&[b, w]: _zip(biases, weights)) {
-        a = sigmoid<double, narray<double>>(dot_product<narray<double>, double>(w, a) + b);
+    for (auto &&[b, w, af]: _zip(biases, weights, activation_functions)) {
+        a = af(dot_product<narray<double>, double>(w, a) + b);
     }
     return a;
 }
@@ -62,11 +62,12 @@ vector_tuple Network::back_propagation(narray<double> &x, narray<double> &y) {
     std::vector<narray<double>> activations;
     activations.push_back(activation);
     std::vector<narray<double>> zs;
-    for (auto &&[b, w]: _zip(biases, weights)) {
+    for (auto &&[b, w, a]: _zip(biases, weights, activation_functions)) {
 //        z = np.dot(w, activation)+b
         narray<double> z = dot_product<narray<double>, double>(w, activation) + b;
         zs.push_back(z);
-        activation = sigmoid<double, narray<double>>(z);
+//        activation = sigmoid<double, narray<double>>(z);
+        activation = a(z);
         activations.push_back(activation);
     }
 
@@ -77,7 +78,7 @@ vector_tuple Network::back_propagation(narray<double> &x, narray<double> &y) {
                                                                       activations[activations.size() - 2].transpose());
     for (int l = 2; l < num_layer; l++) {
         narray<double> z = zs[zs.size() - l];
-        narray<double> sp = sigmoid_prime<double, narray<double>>(z);
+        narray<double> sp = reLU_prime<double, narray<double>>(z);
         delta = dot_product<narray<double>, double>(weights[weights.size() - l + 1].transpose(), delta) * sp;
         nabla_b[nabla_b.size() - l] = delta;
         nabla_w[nabla_w.size() - l] = dot_product<narray<double>, double>(delta, activations[activations.size() - l -
@@ -147,8 +148,8 @@ Network::SGD(training_data_container &training_data, training_data_container &te
             narray<double> &b = std::get<1>(tdc);
             int a1 = evaluate(a);
             int a2 = max_arg(b);
-            print_image(28, 28, a.get_mem(), a2, a1);
-            std::cin.get();
+//            print_image(28, 28, a.get_mem(), a2, a1);
+//            std::cin.get();
             if (a1 == a2) {
                 count++;
             }
@@ -172,11 +173,11 @@ Network::train(unsigned char *images, unsigned char *labels, unsigned image_size
     std::vector<double> vectorized = std::vector<double>(10);
 
     for (int i = 0; i < size; i++) {
-        std::vector<unsigned char> slice =
-                std::vector<unsigned char>(images + i * image_size,
-                                           images + image_size + i * size);
+//        std::vector<unsigned char> slice =
+//                std::vector<unsigned char>(images + i * image_size,
+//                                           images + image_size + i * size);
         for (int j = 0; j < image_size; j++) {
-            img[j] = slice[j];//(*(images + j + (image_size * i)));
+            img[j] = (*(images + j + (image_size * i)));
         }
         char_to_double_conversion(img, prepared_img);
         vectorized[*(labels + i)] = 1.f;
@@ -188,11 +189,11 @@ Network::train(unsigned char *images, unsigned char *labels, unsigned image_size
         vectorized[*(labels + i)] = 0.f;
     }
     for (int i = 0; i < validation_size; i++) {
-        std::vector<unsigned char> slice =
-                std::vector<unsigned char>(images + i * image_size,
-                                           images + image_size + i * size);
+//        std::vector<unsigned char> slice =
+//                std::vector<unsigned char>(images + i * image_size,
+//                                           images + image_size + i * size);
         for (int j = 0; j < image_size; j++) {
-            img[j] = slice[j];//(*(images + j + (image_size * i) + (image_size * size)));
+            img[j] = (*(images + j + (image_size * i) + (image_size * size)));
         }
         char_to_double_conversion(img, prepared_img);
         vectorized[*(labels + i + size)] = 1.f;

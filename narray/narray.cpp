@@ -33,7 +33,7 @@ narray<T>::narray(narray<T> &&rhs) noexcept {
 
 template<typename T>
 narray<T>::narray(const narray<T> &out) {
-    if (mem) {//в случае если присвоение происходит уже инициализированному наррай происходит утечка из васиной уздечки ^W^W^^W^W^W^W^W^ памяти
+    if (mem) {
         counting_mem_allocator<T>::deallocate(allocator, mem, mem_size);
         mem = nullptr;
     }
@@ -103,7 +103,7 @@ narray<T>::narray(std::vector<int> sizes, std::vector<int> stride_info, T *mem, 
 
 template<typename T>
 narray<T>::narray(std::vector<int> sizes, filler<T> &filler) {
-    this->mem_policy = new standart_policy<T>();
+    this->mem_policy =  standart_policy<T>::GetInstance();
     this->sizes = sizes;
     mem_size = 1;
     std::for_each(sizes.begin(), sizes.end(),
@@ -124,7 +124,7 @@ narray<T>::narray(std::vector<int> sizes, filler<T> &filler) {
 template<typename T>
 narray<T>::~narray() {
     mem_policy->free(allocator, mem, mem_size);
-    delete mem_policy;
+//    delete mem_policy;
 }
 
 template<typename T>

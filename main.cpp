@@ -78,33 +78,33 @@ void show_train_screen() {
 
 int main(int argc, const char *argv[]) {
 //    setlocale(LC_CTYPE, "en_US.UTF-8");
-    setlocale(LC_ALL, "");
-    initscr();
-
-    start_color();
-    init_pair(1, COLOR_GREEN, COLOR_BLACK);
-    init_pair(2, COLOR_WHITE, COLOR_WHITE);
-    print_splash();
-    clear();
-    refresh();
-    attron(COLOR_PAIR(1));
+//    setlocale(LC_ALL, "");
+//    initscr();
+//
+//    start_color();
+//    init_pair(1, COLOR_GREEN, COLOR_BLACK);
+//    init_pair(2, COLOR_WHITE, COLOR_WHITE);
+//    print_splash();
+//    clear();
+//    refresh();
+//    attron(COLOR_PAIR(1));
     MNISTReader reader("train-images-idx3-ubyte", "train-labels-idx1-ubyte");
-    clear();
-    refresh();
-    std::thread t1(show_prepare_screen);
+//    clear();
+//    refresh();
+//    std::thread t1(show_prepare_screen);
     reader.prepare();
-    t1.join();
-    std::thread t2(show_read_screen);
+//    t1.join();
+//    std::thread t2(show_read_screen);
     reader.read();
-    t2.join();
-    show_train_screen();
-    clear();
-    refresh();
-    attroff(COLOR_PAIR(1));
-    init_pair(1, COLOR_BLACK, COLOR_WHITE);
-    init_pair(2, COLOR_WHITE, COLOR_WHITE);
+//    t2.join();
+//    show_train_screen();
+//    clear();
+//    refresh();
+//    attroff(COLOR_PAIR(1));
+//    init_pair(1, COLOR_BLACK, COLOR_WHITE);
+//    init_pair(2, COLOR_WHITE, COLOR_WHITE);
     reader.train();
     reader.close();
-    endwin();
+//    endwin();
     return 0;
 }

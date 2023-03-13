@@ -51,6 +51,9 @@ add_executable(Neuronet
         tools/ArchiveDecompressor.cpp
         dataset_readers/MNISTReader.cpp
         utils/narray_util.cpp
+#        neural_network/Network_2.cpp
+#        neural_network/Layer.cpp
+#        neural_network/fully_connected_layer.cpp
         neural_network/Network.cpp
         narray/narray.cpp
         narray/narray_coord.cpp
