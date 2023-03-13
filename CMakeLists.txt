@@ -54,6 +54,11 @@ add_executable(Neuronet
 #        neural_network/Network_2.cpp
 #        neural_network/Layer.cpp
 #        neural_network/fully_connected_layer.cpp
+        neural_network/layers/layer.cpp
+        neural_network/layers/input_layer.cpp
+        neural_network/layers/hidden_layer.cpp
+        neural_network/layers/output_layer.cpp
+        neural_network/activations/activations_holder.cpp
         neural_network/Network.cpp
         narray/narray.cpp
         narray/narray_coord.cpp

@@ -10,6 +10,7 @@
 #include <random>
 #include "dataset_readers/MNISTReader.h"
 #include "narray/narray.h"
+#include "neural_network/layers/layer.h"
 
 
 template<class Iterator, typename T>
@@ -38,12 +39,21 @@ using vector_tuple = std::tuple<std::vector<narray<double>>, std::vector<narray<
 
 class Network {
 public:
-    Network(const std::vector<int> sizes, MNISTReader &mnist_reader, double eta = 3.f) : sizes(sizes),
-                                                                                         mnist_reader(mnist_reader),
-                                                                                         eta(eta) {}
+//    Network(const std::vector<int> sizes, MNISTReader &mnist_reader, double eta = 3.f) : sizes(sizes),
+//                                                                                         mnist_reader(mnist_reader),
+//                                                                                         eta(eta) {}
+
+    Network(const std::vector<layer> layers, MNISTReader &mnist_reader, double eta = 3.f) : input_layer(layers[0]),
+                                                                                            layers(layers),
+                                                                                            mnist_reader(mnist_reader),
+                                                                                            eta(eta) {
+
+    }
 
 private:
     const std::vector<int> sizes;
+    const std::vector<layer> layers;
+    const layer input_layer;
     int num_layer;
     std::vector<narray<double>> biases;
     std::vector<narray<double>> weights;

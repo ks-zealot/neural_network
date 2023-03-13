@@ -25,13 +25,17 @@ void print_matrix(narray<double> &array, short size) {
 
 //[784, 30, 10]
 void Network::init() {
-    num_layer = sizes.size();
-    biases.push_back(narray<double>(std::vector({sizes[1], 1}), random_filler<double>::GetInstance()));
-    biases.push_back(narray<double>(std::vector({sizes[2], 1}), random_filler<double>::GetInstance()));
-    weights.push_back(narray<double>(std::vector({sizes[1], sizes[0]}), random_filler<double>::GetInstance()));
-    weights.push_back(narray<double>(std::vector({sizes[2], sizes[1]}), random_filler<double>::GetInstance()));
-    activation_functions.push_back(reLU<double, narray<double>>);
-    activation_functions.push_back(sigmoid<double, narray<double>>);
+    num_layer = layers.size();
+    for (int i = 0; i < num_layer - 1; i++) {
+        weights.push_back(
+                narray<double>(std::vector({layers[i + 1].size, layers[i].size}), random_filler<double>::GetInstance()));
+    }
+    for (int i = 1; i < num_layer; i++) {
+        biases.push_back(narray<double>(std::vector({layers[i].size, 1}), random_filler<double>::GetInstance()));
+    }
+    remove_first(layers);
+//    activation_functions.push_back(reLU<double, narray<double>>);
+//    activation_functions.push_back(sigmoid<double, narray<double>>);
 }
 
 
@@ -41,13 +45,13 @@ void Network::print(narray<double> &t) {
 }
 
 narray<double> &Network::feed_forward(narray<double> &a) {
-    for (auto &&[b, w, af]: _zip(biases, weights, activation_functions)) {
-        a = af(dot_product<narray<double>, double>(w, a) + b);
+    for (auto &&[b, w, layer]: _zip(biases, weights, layers)) {
+        a =  layer.activate(dot_product<narray<double>, double>(w, a) + b);
     }
     return a;
 }
 
-vector_tuple Network::back_propagation(narray<double> &x, narray<double> &y) {
+vector_tuple Network::back_propagation(narray<double> &x, narray<double> &y)  {
 //    print_image(28, 28, x.get_mem(), max_arg(y));
 //    std::cin.get();
     std::vector<narray<double>> nabla_b;
@@ -58,27 +62,26 @@ vector_tuple Network::back_propagation(narray<double> &x, narray<double> &y) {
     for (narray<double> &w: weights) {
         nabla_w.push_back(narray<double>(w.get_sizes()));
     }
-    narray<double> activation = x;
+    narray<double> activation = input_layer.activate(x);
     std::vector<narray<double>> activations;
     activations.push_back(activation);
     std::vector<narray<double>> zs;
-    for (auto &&[b, w, a]: _zip(biases, weights, activation_functions)) {
+    for (auto &&[b, w, layer]: _zip(biases, weights, layers)) {
 //        z = np.dot(w, activation)+b
         narray<double> z = dot_product<narray<double>, double>(w, activation) + b;
         zs.push_back(z);
 //        activation = sigmoid<double, narray<double>>(z);
-        activation = a(z);
+        activation = layer.activate(z);
         activations.push_back(activation);
     }
-
     narray<double> delta = cost_derivative<narray<double>>(activations[activations.size() - 1], y) *
-                           sigmoid_prime<double, narray<double>>(zs[zs.size() - 1]);
+                           layers[layers.size() - 1].derivative(zs[zs.size() - 1]);
     nabla_b[nabla_b.size() - 1] = delta;
     nabla_w[nabla_w.size() - 1] = dot_product<narray<double>, double>(delta,
                                                                       activations[activations.size() - 2].transpose());
     for (int l = 2; l < num_layer; l++) {
         narray<double> z = zs[zs.size() - l];
-        narray<double> sp = reLU_prime<double, narray<double>>(z);
+        narray<double> sp = layers[layers.size() - l].derivative(z);
         delta = dot_product<narray<double>, double>(weights[weights.size() - l + 1].transpose(), delta) * sp;
         nabla_b[nabla_b.size() - l] = delta;
         nabla_w[nabla_w.size() - l] = dot_product<narray<double>, double>(delta, activations[activations.size() - l -
