@@ -10,7 +10,7 @@
 
 class input_layer : public layer {
 public:
-    input_layer(unsigned size) : layer(size, "linear") {}
+    input_layer(int size) : layer(size,  "linear") {}
 };
 
 

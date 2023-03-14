@@ -35,9 +35,7 @@ set(CURSES_LIBRARIES "/usr/lib/x86_64-linux-gnu/libncursesw.so;/usr/lib/x86_64-l
 
 add_executable(Neuronet
         #        Neuronet
-        profiling/time_profiling.h
         profiling/time_profiling.cpp
-        mempool/counting_mem_allocator.h
         mempool/counting_mem_allocator.cpp
         global.cpp
         utils.cpp

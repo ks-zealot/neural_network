@@ -7,11 +7,10 @@
 
 
 #include "layer.h"
-#include "math/math.h"
 
 class output_layer : public layer {
 public:
-    output_layer(unsigned size, std::string activation = "sigmoid") : layer(size, activation) {}
+    output_layer(unsigned size, const std::string&  activation = "sigmoid") : layer(size, activation) {}
 
 };
 

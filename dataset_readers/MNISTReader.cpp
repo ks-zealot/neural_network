@@ -3,8 +3,6 @@
 //
 
 #include <cassert>
-#include <cstdlib>
-#include <cstring>
 
 #include "MNISTReader.h"
 #include "utils.h"
@@ -13,9 +11,6 @@
 #include "neural_network/layers/input_layer.h"
 #include "neural_network/layers/output_layer.h"
 #include <iostream>
-#include <random>
-#include <thread>
-#include <chrono>
 
 void MNISTReader::read() {
     extractDataset();
@@ -66,7 +61,6 @@ void MNISTReader::close() {
 
 
 void MNISTReader::train() {
-//    Network network({number_of_rows * number_of_cols, 30, 10}, *this, 0.5);
     Network network({input_layer(number_of_rows * number_of_cols), hidden_layer(30, "reLU"), output_layer(10)}, *this, 0.5);
     network.init();
     network.train((unsigned char*)images,(unsigned char*) labels, number_of_rows * number_of_cols,

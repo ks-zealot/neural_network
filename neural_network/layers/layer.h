@@ -12,7 +12,7 @@
 
 class layer {
 public:
-    layer(int size, std::string& activation) : activation_function(
+    layer(int size, const std::string  & activation) : activation_function(
             activations_map[activation]), derivative_functions(prime_activations_map[activation]), size(size) {};
 
     narray<double> activate(narray<double> &&input) const;

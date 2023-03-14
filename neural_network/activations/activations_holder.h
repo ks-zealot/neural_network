@@ -9,7 +9,7 @@
 #include <string>
 #include <map>
 #include "narray/narray.h"
-#include "math/math.h"
+//
 
 extern std::map<std::string, narray<double> (*)(const narray<double> &)> activations_map;
 extern std::map<std::string, narray<double> (*)(const narray<double> &)> prime_activations_map;

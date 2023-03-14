@@ -10,7 +10,7 @@
 
 class hidden_layer  : public layer{
 public:
-    hidden_layer(unsigned size, std::string activation =  "sigmoid") : layer(size, activation) {}
+    hidden_layer(unsigned size,const std::string & activation =  "sigmoid") : layer(size, activation) {}
 };
 
 

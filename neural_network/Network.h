@@ -44,6 +44,7 @@ public:
 //                                                                                         eta(eta) {}
 
     Network(const std::vector<layer> layers, MNISTReader &mnist_reader, double eta = 3.f) : input_layer(layers[0]),
+                                                                                            active_layers(layers.begin() + 1 , layers.end()),
                                                                                             layers(layers),
                                                                                             mnist_reader(mnist_reader),
                                                                                             eta(eta) {
@@ -53,6 +54,7 @@ public:
 private:
     const std::vector<int> sizes;
     const std::vector<layer> layers;
+    const std::vector<layer> active_layers;
     const layer input_layer;
     int num_layer;
     std::vector<narray<double>> biases;

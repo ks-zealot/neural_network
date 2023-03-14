@@ -5,13 +5,14 @@
 #include <chrono>
 #include <thread>
 #include <valarray>
-
+#include "math/math.h"
+//#include "math/activations.h"
 #include "Network.h"
 #include "utils/vector_util.h"
-#include "math/math.h"
 #include "utils.h"
 #include "logging/log.h"
-
+//relu
+//        sigmoid
 void print_matrix(narray<double> &array, short size) {
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
@@ -33,7 +34,7 @@ void Network::init() {
     for (int i = 1; i < num_layer; i++) {
         biases.push_back(narray<double>(std::vector({layers[i].size, 1}), random_filler<double>::GetInstance()));
     }
-    remove_first(layers);
+
 //    activation_functions.push_back(reLU<double, narray<double>>);
 //    activation_functions.push_back(sigmoid<double, narray<double>>);
 }
@@ -45,7 +46,7 @@ void Network::print(narray<double> &t) {
 }
 
 narray<double> &Network::feed_forward(narray<double> &a) {
-    for (auto &&[b, w, layer]: _zip(biases, weights, layers)) {
+    for (auto &&[b, w, layer]: _zip(biases, weights, active_layers)) {
         a =  layer.activate(dot_product<narray<double>, double>(w, a) + b);
     }
     return a;
@@ -66,7 +67,7 @@ vector_tuple Network::back_propagation(narray<double> &x, narray<double> &y)  {
     std::vector<narray<double>> activations;
     activations.push_back(activation);
     std::vector<narray<double>> zs;
-    for (auto &&[b, w, layer]: _zip(biases, weights, layers)) {
+    for (auto &&[b, w, layer]: _zip(biases, weights, active_layers)) {
 //        z = np.dot(w, activation)+b
         narray<double> z = dot_product<narray<double>, double>(w, activation) + b;
         zs.push_back(z);
